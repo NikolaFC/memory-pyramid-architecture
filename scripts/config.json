@@ -1,0 +1,55 @@
+{
+  "name": "memory-pyramid-architecture",
+  "version": "1.0.0",
+  "night_owl": {
+    "day_end": "22:00",
+    "day_start": "07:00",
+    "timezone": "Europe/London",
+    "description": "Night activities (22:00-07:00) belong to last night"
+  },
+  "layers": {
+    "layer1_navigation": {
+      "path": "./MEMORY.md",
+      "max_lines": 150,
+      "purpose": "Quick index for startup"
+    },
+    "layer2_knowledge": {
+      "daily_reviews": "./memory/daily_reviews",
+      "weekly_distills": "./memory/weekly_distills",
+      "topics": "./memory/topics",
+      "purpose": "Processed insights and patterns"
+    },
+    "layer3_structured": {
+      "daytime_logs": "./memory/YYYY-MM-DD.md",
+      "night_logs": "./memory/YYYY-MM-DD-last-night.md",
+      "purpose": "Semi-processed activity logs"
+    },
+    "layer4_raw": {
+      "realtime": "./memory/realtime-YYYY-MM-DD.md",
+      "purpose": "Original conversation records"
+    }
+  },
+  "cron_schedule": {
+    "late_hour_sync": "0 7 * * *",
+    "hourly_micro_sync": "0 10,13,16,19,22 * * *",
+    "daily_review": "10 22 * * *",
+    "weekly_compound": "55 23 * * 0"
+  },
+  "qmd_collections": [
+    "memory-realtime",
+    "memory-daily", 
+    "memory-late-night",
+    "memory-daily-reviews",
+    "memory-weekly-distills",
+    "memory-topics",
+    "memory-root"
+  ],
+  "retrieval_priority": [
+    "daily_reviews",
+    "weekly_distills", 
+    "topics",
+    "daytime_logs",
+    "night_logs",
+    "realtime"
+  ]
+}
