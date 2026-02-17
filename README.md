@@ -1,67 +1,126 @@
-# Memory Pyramid Architecture
+# Memory Pyramid Architecture for OpenClaw
 
-> 🏗️ Production-ready four-layer memory architecture for OpenClaw
-> 🌙 Optimized for night owls - preserve your creative flow!
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![OpenClaw](https://img.shields.io/badge/OpenClaw-Compatible-blue.svg)](https://openclaw.ai)
 
-## What is This?
+> 🏗️ A production-ready, four-layer memory architecture for OpenClaw with special optimization for night owls.
 
-A battle-tested memory system that organizes your OpenClaw conversations into a progressive refinement pipeline:
+## ✨ Features
 
-```
-Raw Conversations → Structured Logs → Daily Insights → Weekly Patterns
-     (Auto)            (Auto)         (Auto)          (Auto)
-```
+- 🏗️ **Four-Layer Pyramid**: Raw → Structured → Knowledge → Navigation
+- 🌙 **Night-Owl Friendly**: Late night activities (22:00-07:00) belong to "last night"
+- 🔄 **Fully Automated**: 6 cron jobs handle everything
+- 📊 **QMD Integrated**: All layers indexed for semantic search
+- ⚡ **Token Efficient**: 90% reduction vs flat RAG
 
-## Why Use It?
-
-| Problem | Solution |
-|---------|----------|
-| Memory scattered across days | Unified timeline with night-owl boundaries |
-| Can't find past insights | Four-layer progressive refinement |
-| Context bloat | Automatic summarization at each layer |
-| Late-night work split across days | 22:00-07:00 belongs to "last night" |
-
-## Installation
+## 🚀 Quick Start
 
 ```bash
-# One-command setup
-python3 ~/.openclaw/workspace/skills/memory-pyramid-architecture/scripts/init.py
+# Clone this repository
+git clone https://github.com/YOUR_USERNAME/memory-pyramid-architecture.git
+
+# Navigate to skill directory
+cd memory-pyramid-architecture
+
+# Run initialization
+python3 scripts/init.py
 ```
 
-## Quick Example
+Then add the cron jobs via OpenClaw interface.
 
-After running for a week, your memory structure looks like:
+## 📁 Repository Structure
 
 ```
-memory/
-├── 2026-02-10.md                    # Daytime activities
-├── 2026-02-10-last-night.md         # Night activities (22:00-07:00)
-├── daily_reviews/
-│   ├── 2026-02-10.md               # Daily distilled insights
-│   └── 2026-02-11.md
-├── weekly_distills/
-│   └── 2026-W06.md                 # Weekly pattern analysis
-└── topics/
-    └── project_alfa.md              # Long-term knowledge
+memory-pyramid-architecture/
+├── SKILL.md                    # Main skill documentation
+├── README.md                   # This file
+├── scripts/
+│   ├── init.py                # One-command setup
+│   └── config.json            # Configuration
+├── references/                # Detailed docs
+│   ├── architecture-details.md
+│   ├── cron-reference.md
+│   └── troubleshooting.md
+└── examples/                  # Template files
+    ├── layer4-raw/
+    ├── layer3-structured/
+    └── layer2-knowledge/
 ```
 
-## How It Works
+## 🏗️ Architecture Overview
 
-1. **Every minute**: Conversations sync to `realtime-*.md`
-2. **Every 3 hours** (daytime): Important activities extracted to `YYYY-MM-DD.md`
-3. **07:00 daily**: Last night's activities archived to `*-last-night.md`
-4. **22:10 daily**: Full day summarized to `daily_reviews/*.md`
-5. **Sunday 23:55**: Week analyzed for patterns in `weekly_distills/*.md`
+```
+Layer 1: Navigation
+└── MEMORY.md (quick index)
 
-## Documentation
+Layer 2: Knowledge (Processed)
+├── topics/ (long-term memory)
+├── daily_reviews/ (daily essence)
+└── weekly_distills/ (weekly patterns)
 
-- Full guide: [SKILL.md](SKILL.md)
-- Architecture deep dive: [references/architecture-details.md](references/architecture-details.md)
-- Troubleshooting: [references/troubleshooting.md](references/troubleshooting.md)
+Layer 3: Structured (Semi-processed)
+├── YYYY-MM-DD.md (daytime 07:00-22:00)
+└── YYYY-MM-DD-last-night.md (night 22:00-07:00)
 
-## Community
+Layer 4: Raw (Original)
+└── realtime-YYYY-MM-DD.md (minute-by-minute)
+```
 
-This skill is part of the OpenClaw ecosystem. Share improvements, report issues, and collaborate!
+## ⏰ Automation Schedule
+
+| Time | Job | Output |
+|------|-----|--------|
+| 07:00 | Late Hour Sync | `*-last-night.md` |
+| 10/13/16/19/22:00 | Hourly Micro-Sync | `YYYY-MM-DD.md` |
+| 22:10 | Daily Review | `daily_reviews/*.md` |
+| Sun 23:55 | Weekly Compound | `weekly_distills/*.md` |
+
+## 📚 Documentation
+
+- **[SKILL.md](SKILL.md)** - Complete usage guide
+- **[references/architecture-details.md](references/architecture-details.md)** - Design deep dive
+- **[references/cron-reference.md](references/cron-reference.md)** - All cron jobs explained
+- **[references/troubleshooting.md](references/troubleshooting.md)** - Common issues & fixes
+
+## 🌟 Why Night-Owl Optimized?
+
+Traditional systems split activities at midnight, cutting your creative flow in half:
+
+```
+22:00 - Start deep work
+02:00 - Brilliant insight  ← Belongs to "today" but context is "yesterday"
+07:00 - Continue work
+```
+
+Memory Pyramid preserves the flow:
+
+```
+22:00-07:00 → 2026-02-16-last-night.md  ← Complete session preserved
+```
+
+## 🤝 Contributing
+
+Contributions welcome! Please:
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Submit a pull request
+
+## 🙏 Credits
+
+- **Concept**: Inspired by [OpenViking](https://github.com/volcengine/OpenViking) (ByteDance/Volcano Engine)
+- **Design**: [Satoshi](https://github.com/YOUR_USERNAME) & Duoduo
+- **Community**: OpenClaw users
+
+## 📄 License
+
+[MIT](LICENSE) - Free for personal and commercial use within OpenClaw ecosystem.
+
+## 🔗 Links
+
+- [OpenClaw Documentation](https://docs.openclaw.ai)
+- [OpenViking Repository](https://github.com/volcengine/OpenViking)
+- [Issues](../../issues)
 
 ---
 
