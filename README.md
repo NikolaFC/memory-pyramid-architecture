@@ -109,7 +109,7 @@ Contributions welcome! Please:
 ## 🙏 Credits
 
 - **Concept**: Inspired by [OpenViking](https://github.com/volcengine/OpenViking) (ByteDance/Volcano Engine)
-- **Design**: [Satoshi](https://github.com/YOUR_USERNAME) & Duoduo
+- **Design**: [Satoshi](https://github.com/NikolaFC) & Duoduo
 - **Community**: OpenClaw users
 
 ## 📄 License
