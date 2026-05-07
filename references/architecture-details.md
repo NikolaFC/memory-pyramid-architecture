@@ -1,199 +1,266 @@
 # Architecture Deep Dive
 
-This document explains the design decisions behind the Memory Pyramid Architecture.
+This document explains the design decisions behind Memory Pyramid Architecture for OpenClaw.
+
+## Baseline vs Production Overlay
+
+The repository defines a **portable baseline**. A real production deployment can add extra jobs and indexes, but those additions should be documented as overlays instead of changing the baseline contract.
+
+- **Baseline**: `MEMORY.md`, structured logs, daily reviews, weekly distills, topics, core cron schedules.
+- **Production overlay**: live status files, indexed session transcripts, short-term recall promotion, dreaming/REM summaries, KB Gardener, skill/evolver signal surfaces, and health/watchdog jobs.
+
+This separation keeps the public repo reusable while still allowing local deployments to evolve.
 
 ## The Problem with Traditional Memory Systems
 
 ### 1. Calendar Boundary Issue
 
 Traditional systems split activities at midnight:
-```
+
+```text
 22:00 - Start deep work
-02:00 - Brilliant insight
+02:00 - Important insight
 07:00 - Continue work
 
-Problem: Insight at 02:00 belongs to "today" but context started "yesterday"
+Problem: the 02:00 insight is stored under a different calendar day even though it belongs to the same work session.
 ```
 
-**Our Solution**: Night activities (22:00-07:00) belong to "last night"
-```
-2026-02-16-last-night.md captures 22:00-07:00
-Preserving creative flow across calendar boundaries
+**Solution**: 22:00-07:00 activity belongs to the previous night.
+
+```text
+YYYY-MM-DD-last-night.md captures 22:00-07:00 and preserves session continuity.
 ```
 
 ### 2. Flat Storage Problem
 
-Traditional RAG: All memories in one bucket
-```
-Query → Vector search → Mixed results (old/new, raw/processed)
+Traditional RAG puts every memory in one bucket:
+
+```text
+Query → vector search → mixed raw and distilled results
 ```
 
-**Our Solution**: Progressive refinement pyramid
-```
-Layer 4 (Raw) → Layer 3 (Structured) → Layer 2 (Knowledge) → Layer 1 (Navigation)
-     Filter          Extract              Distill              Index
+**Solution**: progressive refinement.
+
+```text
+Layer 4 Raw Sources → Layer 3 Structured Logs → Layer 2 Knowledge → Layer 1 Navigation
+        preserve              extract signal            distill          orient quickly
 ```
 
 ### 3. Context Bloat
 
-Loading entire conversation history → Token explosion
+Loading entire conversation history is expensive and noisy.
 
-**Our Solution**: Hierarchical retrieval
-- 90% of queries answered by Layer 2 (daily_reviews/weekly_distills)
-- Only deep dives reach Layer 3 or 4
-- Typical retrieval: <1k tokens vs 30k+ for full history
+**Solution**: hierarchical retrieval.
+
+- Most queries should start from Layer 2 or Layer 1.
+- Exact proof or audit requests can expand to Layer 3 or Layer 4.
+- Raw session transcripts are valuable, but should not be the default context payload.
 
 ## Four-Layer Design Philosophy
 
-### Layer 4: Raw (Capture Everything)
+### Layer 4: Raw Sources
 
-**Purpose**: Preserve complete record
-**Format**: `realtime-YYYY-MM-DD.md`
-**Update**: Every minute
-**Content**: User queries + Assistant responses (filtered)
-**Token Cost**: High (don't retrieve directly)
+**Purpose**: Preserve or index the complete source record.
 
-### Layer 3: Structured (Extract Signal from Noise)
+**Preferred current source**: OpenClaw session transcripts and the OpenClaw memory index.
 
-**Purpose**: Capture important activities
-**Format**: 
-- `YYYY-MM-DD.md` (daytime 07:00-22:00)
-- `YYYY-MM-DD-last-night.md` (night 22:00-07:00)
+**Optional legacy/raw mirror**: `memory/realtime-YYYY-MM-DD.md`.
 
-**Update**: 
-- Hourly Micro-Sync (10/13/16/19/22:00) for daytime
-- Late Hour Sync (07:00) for night
+**Update pattern**:
 
-**Content**: Important decisions, code changes, configurations
-**Filter**: Exclude heartbeats, chitchat, system messages
+- Current OpenClaw deployments can index session transcripts directly.
+- Older deployments may mirror selected raw messages into `realtime-*.md`.
+- Raw sources are high-token and should be used mainly for exact recall, audit, or conflict resolution.
 
-### Layer 2: Knowledge (Distill Insights)
+### Layer 3: Structured Logs
 
-**Purpose**: Extract actionable patterns
+**Purpose**: Capture important activities in a human-readable timeline.
+
 **Format**:
-- `daily_reviews/YYYY-MM-DD.md`
-- `weekly_distills/YYYY-WXX.md`
-- `topics/*.md`
+
+- `memory/YYYY-MM-DD.md` for daytime activity
+- `memory/YYYY-MM-DD-last-night.md` for 22:00-07:00 activity
 
 **Update**:
-- Daily Review (22:10)
-- Weekly Compound (Sun 23:55)
-- Manual (topics)
+
+- Micro-Sync at 10/13/16/19/22:00
+- Late Hour Sync at 07:00
 
 **Content**:
-- Achievements, lessons, decisions
-- Automation candidates
-- Cross-day patterns
-- Long-term knowledge
 
-### Layer 1: Navigation (Quick Orientation)
+- Decisions
+- Code/config changes
+- Task progress
+- Risks and blockers
+- Pointers to evidence paths
 
-**Purpose**: Fast startup indexing
+**Filter out**:
+
+- Routine heartbeats
+- Low-value chatter
+- Duplicate status noise
+- Private raw identifiers that are not needed for future recall
+
+### Layer 2: Knowledge
+
+**Purpose**: Distill actionable patterns and stable truth.
+
+**Format**:
+
+- `memory/daily_reviews/YYYY-MM-DD.md`
+- `memory/weekly_distills/YYYY-Wxx.md`
+- `memory/topics/*.md`
+
+**Update**:
+
+- Daily Review at 22:10
+- Weekly Compound on Sunday 23:55
+- Manual or guarded promotion for topics
+
+**Content**:
+
+- Durable decisions
+- Repeated lessons
+- Reusable patterns
+- Automation opportunities
+- Long-term project knowledge
+
+### Layer 1: Navigation
+
+**Purpose**: Fast orientation.
+
 **Format**: `MEMORY.md`
-**Max Size**: ~150 lines
+
 **Content**:
-- Quick links to all layers
-- This week's highlights
-- Active projects
-- Critical decisions
 
-## The Night-Owl Boundary (22:00-07:00)
+- Pointers to current memory layers
+- High-value durable facts
+- Topic index
+- Retrieval guidance
 
-### Why This Window?
+Keep `MEMORY.md` concise. Put large operational details in topic pages, docs, or references.
 
-1. **Natural Rhythm**: Many developers peak 22:00-02:00
-2. **Sleep Integration**: 07:00 natural wake time for night owls
-3. **Context Preservation**: Late insights stay with originating session
-4. **Morning Review**: 07:00 sync provides yesterday's night summary
+## The Night-Owl Boundary
 
-### Implementation
+### Why 22:00-07:00?
+
+1. **Context preservation**: late-night work often continues the previous evening.
+2. **Review rhythm**: 07:00 creates a natural close for the night block.
+3. **Searchability**: related decisions stay together instead of splitting at midnight.
+
+### Late Hour Sync Logic
 
 ```python
-# Late Hour Sync logic
 def late_hour_sync():
-    # Capture 22:00 yesterday → 07:00 today
     night_activities = capture_window(
         start="yesterday 22:00",
-        end="today 07:00"
+        end="today 07:00",
     )
-    
-    # File named with yesterday's date
+
     filename = f"{yesterday}-last-night.md"
-    
-    # Content sections
+
     write(filename, {
         "Late Night Activities": night_activities,
         "Key Insights": extract_insights(night_activities),
         "Decisions Made": extract_decisions(night_activities),
+        "Next Actions": extract_next_actions(night_activities),
     })
 ```
 
 ## Automation Pipeline
 
-```
-Minute 0-59: Real-time Sync
-    ↓ Save to realtime-*.md
-
-Hour 10,13,16,19,22: Micro-Sync
-    ↓ Read recent 3h from realtime-*.md
-    ↓ Extract important activities
-    ↓ Append to YYYY-MM-DD.md
-
+```text
+Raw session transcripts / optional realtime mirror
+    ↓
+10/13/16/19/22: Micro-Sync
+    ↓ append meaningful daytime changes
+memory/YYYY-MM-DD.md
+    ↓
 07:00: Late Hour Sync
-    ↓ Read 22:00-07:00 from realtime-*.md
-    ↓ Extract night activities
-    ↓ Save to YYYY-MM-DD-last-night.md
-
+    ↓ capture 22:00-07:00 as previous night
+memory/YYYY-MM-DD-last-night.md
+    ↓
 22:10: Daily Review
-    ↓ Read YYYY-MM-DD.md (daytime)
-    ↓ Read YYYY-MM-DD-last-night.md (last night)
-    ↓ LLM distillation
-    ↓ Save to daily_reviews/*.md
-
+    ↓ distill decisions, lessons, risks, next actions
+memory/daily_reviews/YYYY-MM-DD.md
+    ↓
 Sun 23:55: Weekly Compound
-    ↓ Read 7 daily_reviews/*.md
-    ↓ Cross-day pattern analysis
-    ↓ LLM synthesis
-    ↓ Save to weekly_distills/*.md
+    ↓ extract patterns, automation opportunities, durable truth
+memory/weekly_distills/YYYY-Wxx.md
+    ↓
+MEMORY.md and memory/topics/*.md receive only durable, high-signal updates.
 ```
 
-## QMD Collection Strategy
+## Search / Index Strategy
 
-Each layer has dedicated collection for efficient retrieval:
+Current OpenClaw deployments can validate memory indexing with:
 
-| Collection | Pattern | Use Case |
-|------------|---------|----------|
-| memory-realtime | `realtime-*.md` | Deep historical search |
-| memory-daily | `2026-*.md` | Specific day lookup |
-| memory-late-night | `*-last-night.md` | Night activity search |
-| memory-daily-reviews | `daily_reviews/*.md` | Daily insight retrieval |
-| memory-weekly-distills | `weekly_distills/*.md` | Pattern analysis |
-| memory-topics | `topics/*.md` | Thematic knowledge |
-| memory-root | `MEMORY.md` | Quick orientation |
+```bash
+openclaw memory status --json
+openclaw memory search "memory pyramid"
+```
+
+A deployment may expose separate collections such as:
+
+| Source | Pattern | Use case |
+|--------|---------|----------|
+| root | `MEMORY.md` | quick orientation |
+| topics | `memory/topics/*.md` | durable thematic truth |
+| daily reviews | `memory/daily_reviews/*.md` | daily distilled insight |
+| weekly distills | `memory/weekly_distills/*.md` | cross-day patterns |
+| structured logs | `memory/YYYY-MM-DD*.md` | timeline lookup |
+| sessions | OpenClaw session transcripts | exact recall / audit |
+| raw mirror | `memory/realtime-*.md` | optional legacy deep search |
+
+If your environment still uses a standalone QMD CLI, `qmd list` remains a useful diagnostic.
+
+## Production Overlay Examples
+
+Optional overlays should not be hard-coded into the baseline docs unless they are generic and reusable.
+
+Common overlays:
+
+- `memory/status/live.md` for short current-state tracking
+- Short-term recall promotion into durable memory
+- Dreaming / REM summaries for candidate long-term truths
+- KB Gardener for turning sources into `docs/kb/*` pages
+- Skill/evolver boundaries for promoting repeated workflows into skills or rules
+- Memory index health checks
+
+See [production-overlay.md](production-overlay.md).
 
 ## Comparison with Other Architectures
 
-| Feature | Flat RAG | OpenViking | Memory Pyramid |
-|---------|----------|------------|----------------|
-| Structure | Single layer | L0/L1/L2 | 4 layers |
-| Night handling | Midnight split | Not specified | 22:00-07:00 window |
-| Automation | Manual | Partial | Full pipeline |
-| Token efficiency | Low | Medium | High |
-| OpenClaw native | N/A | No | Yes |
+| Feature | Flat RAG | OpenViking-inspired hierarchy | Memory Pyramid |
+|---------|----------|-------------------------------|----------------|
+| Structure | Single layer | Multi-stage memory | 4-layer OpenClaw baseline |
+| Night handling | Midnight split | Not usually explicit | 22:00-07:00 window |
+| Raw source | Mixed with summaries | Depends on implementation | Session transcripts or raw mirror |
+| Retrieval | Direct vector search | Progressive | Distilled-first with raw expansion |
+| OpenClaw native | No | No | Yes |
+
+## Privacy Boundary
+
+Public docs and PRs should not include:
+
+- Tokens, credentials, or secret references
+- User IDs, chat IDs, channel IDs, guild/server IDs, message IDs
+- Private hostnames, private absolute paths, or deployment topology
+- Account balances, trading data, private logs, or screenshots
+- Raw conversation excerpts unless explicitly sanitized and necessary
+
+Prefer generic examples and reproducible commands.
 
 ## Future Enhancements
 
-Potential improvements for community contribution:
-
-1. **Multi-timezone support**: Configurable day/night boundaries
-2. **Activity type detection**: Auto-tag (coding, research, chat)
-3. **Sentiment tracking**: Mood patterns in daily reviews
-4. **Skill suggestions**: ML-based automation candidate detection
-5. **Visualization**: Memory flow dashboard
-6. **Export tools**: Migrate to external knowledge bases
+1. Multi-timezone support
+2. Activity-type tagging
+3. Memory-quality linting
+4. Search result evaluation harness
+5. Visualization dashboard
+6. Export tools for external knowledge bases
 
 ## References
 
-- OpenViking paper: https://github.com/volcengine/OpenViking
-- OpenClaw MemOS docs
-- Vector database best practices
+- OpenViking: https://github.com/volcengine/OpenViking
+- OpenClaw docs: https://docs.openclaw.ai

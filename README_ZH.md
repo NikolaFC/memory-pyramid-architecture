@@ -1,94 +1,96 @@
 # OpenClaw 记忆金字塔架构
 
+**最后更新：2026-05-07**
+
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![OpenClaw](https://img.shields.io/badge/OpenClaw-Compatible-blue.svg)](https://openclaw.ai)
 
-> 🏗️ 为 OpenClaw 打造的生产级四层记忆架构，专为夜猫子用户优化（22:00-07:00 活动归属于前一天）。
+> 🏗️ 为 OpenClaw 打造的四层记忆基线架构，针对夜猫子工作流优化。
+
+本仓库记录的是**可公开复用的基线**。真实生产环境可以在其上增加 live status、session transcript 索引、短期记忆晋升、dreaming、KB Gardener、skill/evolver 边界等能力；这些应称为 **production overlay（生产叠加层）**，不是不兼容的“2.0 重写版”。
 
 ## ✨ 特性
 
-- 🏗️ **四层金字塔**: 原始数据 → 结构化 → 知识 → 导航
-- 🌙 **夜猫子友好**: 深夜活动（22:00-07:00）归属于"昨晚"
-- 🔄 **全自动运行**: 6 个 cron 任务零干预
-- 📊 **QMD 集成**: 所有层级支持语义搜索
-- ⚡ **Token 高效**: 比扁平 RAG 节省 90% tokens
+- 🏗️ **四层金字塔**：原始来源 → 结构化日志 → 知识沉淀 → 导航索引
+- 🌙 **夜猫子友好**：22:00-07:00 活动归属前一晚
+- 🔄 **核心自动化**：Late Hour Sync → Micro-Sync → Daily Review → Weekly Compound
+- 📊 **检索友好**：memory 文件与 session transcript 可进入 OpenClaw memory index / QMD
+- ⚡ **低 token 成本**：优先读复盘和专题层，必要时再展开原始会话
+- 🧩 **可叠加生产能力**：生产私有扩展不污染公开基线
 
 ## 🚀 快速开始
 
 ```bash
-# 克隆仓库
-git clone https://github.com/YOUR_USERNAME/memory-pyramid-architecture.git
-
-# 进入 skill 目录
+git clone https://github.com/<owner>/memory-pyramid-architecture.git
 cd memory-pyramid-architecture
-
-# 运行初始化
 python3 scripts/init.py
+python3 scripts/test_integration.py   # 可选冒烟
 ```
 
-然后通过 OpenClaw 界面添加 cron 任务。
-
-## 📁 仓库结构
-
-```
-memory-pyramid-architecture/
-├── SKILL.md                    # Skill 主文档
-├── README.md                   # 英文版说明
-├── README_ZH.md               # 中文版说明
-├── scripts/
-│   ├── init.py                # 一键初始化
-│   └── config.json            # 配置文件
-├── references/                # 详细文档
-│   ├── architecture-details.md
-│   ├── cron-reference.md
-│   └── troubleshooting.md
-└── examples/                  # 模板文件
-    ├── layer4-raw/
-    ├── layer3-structured/
-    └── layer2-knowledge/
-```
+随后在 OpenClaw 环境中确认 cron 与 memory index 状态。
 
 ## 🏗️ 架构概览
 
-### 四层金字塔
+```text
+Layer 1: Navigation 导航层
+└── MEMORY.md
 
-1. **Layer 4 - Raw (原始层)**
-   - 未经处理的原始输入
-   - 包含时间戳和来源标记
+Layer 2: Knowledge 知识层
+├── memory/topics/            长期专题真相
+├── memory/daily_reviews/     每日复盘
+└── memory/weekly_distills/   每周蒸馏
 
-2. **Layer 3 - Structured (结构化层)**
-   - 清洗和格式化
-   - 提取关键实体和关系
+Layer 3: Structured Logs 结构化日志层
+├── memory/YYYY-MM-DD.md
+└── memory/YYYY-MM-DD-last-night.md
 
-3. **Layer 2 - Knowledge (知识层)**
-   - 语义索引和标签
-   - 跨会话关联
+Layer 4: Raw Sources 原始来源层
+├── OpenClaw session transcripts / memory index  当前 OpenClaw 推荐主来源
+└── memory/realtime-YYYY-MM-DD.md                可选 legacy/raw mirror
+```
 
-4. **Layer 1 - Navigation (导航层)**
-   - 高层索引和摘要
-   - 快速检索入口
+## ⏰ 核心自动化节奏
 
-### 夜猫子模式
+| Schedule | 任务 | 输出 |
+|----------|------|------|
+| `0 7 * * *` | Late Hour Sync | `memory/YYYY-MM-DD-last-night.md` |
+| `0 10,13,16,19,22 * * *` | Micro-Sync | `memory/YYYY-MM-DD.md` |
+| `10 22 * * *` | Daily Review | `memory/daily_reviews/YYYY-MM-DD.md` |
+| `55 23 * * 0` | Weekly Compound | `memory/weekly_distills/YYYY-Wxx.md` |
 
-- 22:00-07:00 (Europe/London) 的活动归属于"昨晚"
-- 确保时间线连续性
-- 避免日历切割
+健康检查、短期记忆晋升、dreaming 等属于生产叠加层，见 [production-overlay.md](references/production-overlay.md)。
+
+## 🔍 验收
+
+```bash
+openclaw cron list
+openclaw memory status --json
+openclaw memory search "memory pyramid"
+```
+
+如果部署仍使用独立 QMD CLI，也可以运行：
+
+```bash
+qmd list
+```
 
 ## 📚 文档
 
-- [架构详解](references/architecture-details.md)
-- [Cron 参考](references/cron-reference.md)
-- [故障排除](references/troubleshooting.md)
+- [SKILL.md](SKILL.md)：使用与接入说明
+- [references/architecture-details.md](references/architecture-details.md)：架构详解
+- [references/cron-reference.md](references/cron-reference.md)：cron 参考
+- [references/production-overlay.md](references/production-overlay.md)：生产叠加层与隐私边界
+- [references/troubleshooting.md](references/troubleshooting.md)：故障排除
 
 ## 🤝 贡献
 
-欢迎贡献！请查看 [贡献指南](CONTRIBUTING.md)。
+欢迎提交改进。公开文档中请避免提交私有部署标识、token、用户 ID、频道 ID、绝对主机路径或其它可回溯个人环境的信息。
 
-## �许可证
+## 📄 许可证
 
-MIT License - 查看 [LICENSE](LICENSE) 文件。
+MIT License - 查看 [LICENSE](LICENSE)。
 
 ---
 
-**维护者**: Satoshi & Duoduo  
-**语言**: English | 中文
+**维护者**：Satoshi & Duoduo
+**语言**：English | 中文

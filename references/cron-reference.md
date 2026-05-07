@@ -1,346 +1,280 @@
 # Cron Jobs Reference
 
-Complete reference for all cron jobs in the Memory Pyramid Architecture.
+This page documents the Memory Pyramid **core cron schedules** and the safe way to add optional production overlay jobs.
 
-## Active Jobs
+## Rules for Cron Jobs
 
-### 1. Real-time Chat Sync
+- Every LLM-backed cron payload should explicitly specify a model allowed by the local OpenClaw config.
+- Use the deployment timezone intentionally; do not silently convert local wall-clock requirements to UTC.
+- Prefer `delivery.mode: none` for purely internal memory maintenance.
+- Announce only when a job produces user-value, a blocker, or an actionable failure.
+- Document owner, entrypoint, output files, delivery, validation, and rollback for every production overlay job.
 
-```json
-{
-  "name": "Real-time Chat Sync (每分钟)",
-  "schedule": "* * * * *",
-  "model": "none (Python script)",
-  "delivery": "none"
-}
-```
+## Core Jobs
 
-**Purpose**: Capture every conversation minute-by-minute
-**Output**: `realtime-YYYY-MM-DD.md`
-**Token Cost**: 0 (Python script, no LLM)
-
-**Logic**:
-```python
-- Read session JSONL files
-- Filter out system messages, heartbeats
-- Keep only user queries + assistant responses
-- Append to realtime file
-- Run qmd update + embed
-```
-
----
-
-### 2. Late Hour Sync 🌙
+### 1. Late Hour Sync
 
 ```json
 {
   "name": "Late Hour Sync",
   "schedule": "0 7 * * *",
-  "model": "moonshot/kimi-k2.5",
   "delivery": "none"
 }
 ```
 
-**Purpose**: Archive night activities (22:00-07:00)
-**Output**: `YYYY-MM-DD-last-night.md`
-**Token Cost**: ~500-1000
+**Purpose**: Capture 22:00-07:00 activity as the previous night.
+
+**Output**: `memory/YYYY-MM-DD-last-night.md`
 
 **Logic**:
-```python
-- sessions_list(activeMinutes=540)  # 9 hours
-- Filter messages between 22:00-07:00
-- Extract: activities, insights, decisions, tasks
-- Generate markdown with sections
-- Save with yesterday's date
+
+```text
+- Inspect recent session activity or raw mirror for 22:00-07:00.
+- Extract only meaningful activity: decisions, tasks, blockers, code/config changes.
+- Write with the previous date.
+- Avoid private raw identifiers unless they are needed for local-only audit.
 ```
 
-**Sections**:
-- ## Late Night Activities (22:00-07:00)
-- ## Key Insights
-- ## Decisions Made
-- ## Tasks Completed
+**Suggested sections**:
+
+```markdown
+## Late Night Activities (22:00-07:00)
+## Key Decisions
+## Risks / Blockers
+## Next Actions
+```
 
 ---
 
-### 3. Hourly Micro-Sync
+### 2. Micro-Sync
 
 ```json
 {
-  "name": "Hourly Micro-Sync (safety net)",
+  "name": "Micro-Sync",
   "schedule": "0 10,13,16,19,22 * * *",
-  "model": "moonshot/kimi-k2.5",
   "delivery": "none"
 }
 ```
 
-**Purpose**: Extract important daytime activities every 3 hours
-**Output**: Appends to `YYYY-MM-DD.md`
-**Token Cost**: ~200-500 per run
+**Purpose**: Keep the structured daily log fresh without storing every raw message.
+
+**Output**: append to `memory/YYYY-MM-DD.md`
 
 **Logic**:
-```python
-- sessions_list(activeMinutes=180)  # 3 hours
-- Classify activities:
-  - SKIP: heartbeat, chitchat, system messages
-  - KEEP: decisions, code, config changes, tasks
-- If meaningful activities found:
-  - Append ## Micro-Sync Update (HH:MM)
-  - Bullet point summary
-  - qmd update + embed
-- Else: NO_REPLY (silent)
+
+```text
+- Inspect recent activity since the previous sync.
+- Skip heartbeats, duplicate status, and low-value chatter.
+- Keep decisions, implementation milestones, config changes, validation results, and user-visible blockers.
+- Append a short timestamped section.
 ```
 
-**Update Format**:
+**Update format**:
+
 ```markdown
 ## Micro-Sync Update (14:00)
 
-- Fixed cron model errors (5 jobs updated)
-- Created skill directory structure
-- Discussed QMD Health Check delivery config
+- Decision: ...
+- Changed: ...
+- Validation: ...
+- Next: ...
 ```
 
 ---
 
-### 4. Daily Review
+### 3. Daily Review
 
 ```json
 {
   "name": "Daily Review",
   "schedule": "10 22 * * *",
-  "model": "moonshot/kimi-k2.5",
-  "delivery": "announce (Telegram)"
+  "delivery": "optional announce"
 }
 ```
 
-**Purpose**: Deep distillation of full day
-**Input**: 
-- `YYYY-MM-DD.md` (daytime activities)
-- `YYYY-MM-DD-last-night.md` (last night activities)
-**Output**: `daily_reviews/YYYY-MM-DD.md`
-**Token Cost**: ~2000-4000
+**Purpose**: Distill the day into reusable knowledge.
 
-**Logic**:
-```python
-- Read daytime log (5 micro-sync updates)
-- Read night log (late hour sync)
-- LLM analysis with prompt:
-  "Extract achievements, lessons, decisions, 
-   automation candidates, open questions"
-- Generate structured report
-- Save to daily_reviews/
-- Announce completion to user
-```
+**Input**:
 
-**Output Format**:
+- `memory/YYYY-MM-DD.md`
+- `memory/YYYY-MM-DD-last-night.md`
+- Relevant topic/status files, only when needed
+
+**Output**: `memory/daily_reviews/YYYY-MM-DD.md`
+
+**Suggested output**:
+
 ```markdown
-# Daily Review: 2026-02-17
+# Daily Review: YYYY-MM-DD
 
-## Achievements
-- Fixed 5 cron job model errors
-- Implemented Late Hour Sync for night owls
-- Created memory-pyramid-architecture skill
-
-## Lessons Learned
-- QMD retrieval is more token-efficient than file reading
-- Night-owl boundary at 22:00 preserves creative flow
-
-## Decisions Made
-- Daily Review at 22:10 (after last micro-sync)
-- Separate night logs with *-last-night.md naming
-
+## Completed
+## Decisions
+## Lessons
+## Risks / Watchouts
 ## Automation Candidates
-- Cron model validation (prevent future errors)
-- Automatic QMD collection registration
-
-## Open Questions
-- How to visualize memory pyramid flow?
+## Next Actions
 ```
 
 ---
 
-### 5. Weekly Memory Compound
+### 4. Weekly Compound
 
 ```json
 {
-  "name": "Weekly Memory Compound (Sunday 23:55)",
+  "name": "Weekly Compound",
   "schedule": "55 23 * * 0",
-  "model": "moonshot/kimi-k2.5",
-  "delivery": "announce"
+  "delivery": "optional announce"
 }
 ```
 
-**Purpose**: Cross-day pattern analysis
-**Input**: 7 days of `daily_reviews/*.md`
-**Output**: `weekly_distills/YYYY-WXX.md`
-**Token Cost**: ~4000-6000
+**Purpose**: Extract cross-day patterns and durable improvements.
 
-**Logic**:
-```python
-- Read 7 daily review files
-- Extract: achievements, lessons, decisions, automation candidates
-- Cross-reference patterns:
-  - Repeated unautomated work (>2 times)
-  - Repeated errors (>2 times)
-- LLM synthesis:
-  - Pattern analysis
-  - Automation opportunities
-  - Error patterns
-  - Knowledge gaps
-- Systematic upgrade suggestions:
-  - Skill Upgrade
-  - Memory Upgrade
-  - Convention Upgrade
-  - Soul Upgrade
-- Update MEMORY.md with key highlights
-- Generate weekly report
-```
+**Input**: recent `memory/daily_reviews/*.md`
 
-**Output Format**:
+**Output**: `memory/weekly_distills/YYYY-Wxx.md`
+
+**Suggested output**:
+
 ```markdown
-# Weekly Compound: 2026-W07
+# Weekly Compound: YYYY-Wxx
 
 ## Pattern Analysis
-### Repeated Unautomated Work
-1. Manual cron model fixing (3 times)
-   → Suggest: Automated model validation skill
-
-### Repeated Errors
-1. Forgot to use QMD before file read (2 times)
-   → Suggest: AGENTS.md rule reminder
-
+## Repeated Errors
+## Repeated Successful Workflows
 ## Automation Opportunities
-1. **P0**: Auto-fix cron model aliases
-2. **P1**: QMD retrieval prompt injection
-3. **P2**: Daily memory summary notification
-
-## Error Patterns
-- Model alias drift (using deprecated aliases)
-- Direct file reading without QMD check
-
+## Durable Decisions
 ## Knowledge Gaps
-- OpenViking architecture details
-- Advanced QMD query syntax
-
-## Systematic Upgrade Suggestions
-
-### Skill Upgrade
-- Create cron-model-validator skill
-- Create qmd-reminder skill
-
-### Memory Upgrade
-- Add OpenViking research to topics/
-- Create QMD best practices guide
-
-### Convention Upgrade
-- Update AGENTS.md with model alias rules
-- Add QMD-first search reminder
-
-### Soul Upgrade
-- More proactive pattern recognition
-- Better token cost awareness
-
-## Key Insights
-This week focused on memory architecture optimization.
-Major achievement: Night-owl friendly four-layer pyramid.
+## Suggested Updates
 ```
 
----
+## Optional Production Overlay Jobs
 
-### 6. QMD Health Check
+These jobs are useful in mature deployments, but they are **not part of the portable baseline**.
 
-```json
-{
-  "name": "QMD Health Check (Monday 03:30)",
-  "schedule": "30 3 * * 1",
-  "model": "moonshot/kimi-k2.5",
-  "delivery": "none"
-}
+### Search / Memory Index Health Check
+
+**Purpose**: confirm memory search indexes are healthy and current.
+
+**Typical validation**:
+
+```bash
+openclaw memory status --json
+openclaw memory search "memory pyramid"
 ```
 
-**Purpose**: Weekly database maintenance check
-**Output**: `reports/qmd-health-YYYY-MM-DD.md`
-**Token Cost**: ~500
+If a standalone QMD CLI is present:
 
-**Checks**:
-- Database size (>300MB warning, >500MB critical)
-- Orphaned chunks count
-- Collection health status
-- Index fragmentation
-
-**Actions**:
-- 🔴 Critical: Send WhatsApp notification
-- ⚠️ Warning: Log to report
-- ✅ Normal: NO_REPLY
-
----
-
-## Disabled/Backup Jobs
-
-### Session Health Monitor (Disabled)
-
-```json
-{
-  "name": "Session Health Monitor",
-  "enabled": false,
-  "schedule": "every 2 hours"
-}
+```bash
+qmd list
 ```
 
-**Purpose**: Monitor token usage, suggest session refresh
-**Status**: Disabled (using manual /status instead)
+### Short-Term Promotion
 
----
+**Purpose**: rank frequently recalled short-term items and promote high-confidence durable truths into long-term memory.
 
-### Daily Memory Sync (Disabled)
+**Guardrails**:
 
-```json
-{
-  "name": "Daily Memory Sync (23:45)",
-  "enabled": false
-}
+- Require evidence paths.
+- Do not promote noisy one-off facts.
+- Do not promote private identifiers into public docs.
+- Keep manual review or safe thresholds for high-impact memory changes.
+
+### Dreaming / REM Backfill
+
+**Purpose**: generate grounded reflection candidates from historical sessions or short-term memory.
+
+**Guardrails**:
+
+- Treat outputs as candidates until reviewed.
+- Prefer citations or evidence paths.
+- Do not silently rewrite durable truth without newer evidence.
+
+### Live Status Cleanup
+
+**Purpose**: keep `memory/status/live.md` short and current.
+
+**Guardrails**:
+
+- Store only in-progress, blocked, or pending-decision items.
+- Remove completed items after a short retention window.
+- Keep background logs and long causal chains elsewhere.
+
+## Validation Checklist
+
+After adding or changing cron jobs:
+
+```bash
+openclaw cron list
+openclaw memory status --json
+openclaw memory search "recent decision"
 ```
 
-**Purpose**: Original daily log generator
-**Status**: Disabled (replaced by Micro-Sync + Late Hour Sync)
+Check:
 
----
+- [ ] Core jobs exist with expected schedules and timezone.
+- [ ] LLM-backed jobs explicitly specify a model accepted by the local config.
+- [ ] Outputs are written to the intended memory paths.
+- [ ] Delivery behavior is intentional.
+- [ ] Failures have a visible alert path or documented inspection path.
+- [ ] Public docs do not include private deployment identifiers.
 
 ## Troubleshooting
 
 ### Job Not Running
 
 ```bash
-# Check job status
 openclaw cron list
-
-# Check runs history
 openclaw cron runs --job-id <id>
 ```
 
-### Model Errors
+Common causes:
 
-Common errors:
-- `model not allowed: moonshot/kimi` → Use `moonshot/kimi-k2.5`
-- `model not allowed: moonshot/trinity` → Use `moonshot/kimi-k2.5`
+- Job disabled
+- Timezone mismatch
+- Model not allowed by local config
+- Tool allowlist too narrow
+- Output path missing
 
-### Delivery Errors
+### Cron Runs but No File Changes
 
-- `Delivering to WhatsApp requires target` → Set delivery.mode to "none"
-- `channel not configured` → Check channel configuration
+Check:
+
+- Prompt tells the agent to write a file, not only summarize.
+- Recent activity contained meaningful changes.
+- The job is not instructed to always reply `NO_REPLY` before writing.
+- File permissions allow writes.
+
+### Search Index Looks Stale
+
+Check:
+
+```bash
+openclaw memory status --json
+openclaw memory index --force
+```
+
+If using standalone QMD:
+
+```bash
+qmd update
+qmd list
+```
 
 ### High Token Usage
 
-- Daily Review: 2000-4000 tokens (normal)
-- Weekly Compound: 4000-6000 tokens (normal)
-- If higher: Check input file sizes
+Reduce inputs:
 
----
+- Read Layer 2 before Layer 3.
+- Use recent windows instead of full history.
+- Store evidence paths instead of full pasted logs.
+- Expand raw session transcripts only when exact recall is needed.
 
 ## Customization
 
 ### Change Night Boundary
 
 Edit `scripts/config.json`:
+
 ```json
 {
   "night_owl": {
@@ -351,13 +285,23 @@ Edit `scripts/config.json`:
 ```
 
 Then update:
+
 - Late Hour Sync schedule
-- Hourly Micro-Sync schedule
-- File naming in scripts
+- Micro-Sync schedule
+- File naming / date attribution logic
+- Documentation for the deployment timezone
 
-### Add New Collection
+### Add a New Overlay Job
 
-1. Create directory: `mkdir ~/.openclaw/workspace/memory/new_layer`
-2. Add to QMD config in `openclaw.json`
-3. Create sync cron job
-4. Add retrieval priority in `references/retrieval-guide.md`
+Before enabling it, document:
+
+1. Owner
+2. Schedule and timezone
+3. Entrypoint / prompt / script
+4. Model and thinking level, if LLM-backed
+5. Tool allowlist
+6. Output files
+7. Delivery behavior
+8. Failure alert behavior
+9. Rollback / disable procedure
+10. Privacy boundary

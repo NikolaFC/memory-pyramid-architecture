@@ -263,19 +263,19 @@ ls -lh ~/.openclaw/workspace/memory/2026-02-17.md
 
 ### Model not allowed errors
 
-**Error**: `model not allowed: moonshot/kimi`
+**Error**: `model not allowed: <model-id>`
 
-**Fix**: Update to `moonshot/kimi-k2.5`
+**Fix**: use a model ID that is allowed by the local OpenClaw config, and set it explicitly in the cron payload.
 
 ```bash
-openclaw cron update --job-id <id> --model moonshot/kimi-k2.5
+openclaw cron update --job-id <id> --model <allowed-model-id>
 ```
 
 ### Delivery errors
 
-**Error**: `Delivering to WhatsApp requires target`
+**Error**: `delivery target is missing` or `channel not configured`
 
-**Fix**: Change delivery mode to "none"
+**Fix**: use `delivery.mode: none` for internal memory maintenance, or configure an explicit delivery target for user-facing reports.
 
 ```bash
 openclaw cron update --job-id <id> --delivery-mode none

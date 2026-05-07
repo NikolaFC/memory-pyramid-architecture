@@ -9,7 +9,7 @@ import sys
 import json
 from pathlib import Path
 
-SKILL_DIR = Path('/home/nikolafc/.openclaw/workspace/skills/memory-pyramid-architecture')
+SKILL_DIR = Path(os.environ.get('MEMORY_PYRAMID_DIR', Path(__file__).resolve().parents[1]))
 RESULTS = []
 
 def test(name, condition, details=""):

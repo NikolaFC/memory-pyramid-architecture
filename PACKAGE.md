@@ -2,86 +2,68 @@
 
 ## 📦 Package Contents
 
-```
+```text
 memory-pyramid-architecture/
 ├── SKILL.md                           # Main skill documentation
 ├── README.md                          # Quick start guide
+├── README_EN.md / README_ZH.md        # Language variants
+├── README_LOCAL.md                    # Local deployment notes
 ├── scripts/
-│   ├── init.py                       # One-command setup script
-│   └── config.json                   # Configuration template
+│   ├── init.py                        # Setup / verification helper
+│   ├── config.json                    # Baseline layer and cron config
+│   ├── test_integration.py            # Smoke test
+│   └── visualize.py                   # Flow diagram helper
 ├── references/
-│   ├── architecture-details.md       # Deep dive into design
-│   ├── cron-reference.md             # All cron jobs explained
-│   └── troubleshooting.md            # Common issues & fixes
+│   ├── architecture-details.md        # Deep dive into design
+│   ├── cron-reference.md              # Core and optional cron guidance
+│   ├── production-overlay.md          # Production overlay and privacy boundary
+│   ├── kb-gardener-workflow-v0.1.md   # Optional knowledge-base overlay
+│   ├── topic-routing-policy-v0.1.md   # Topic routing policy
+│   ├── topic-scope-template.md        # Topic contract template
+│   └── troubleshooting.md             # Common issues and fixes
 └── examples/
-    ├── README.md                     # Examples overview
-    ├── layer4-raw/                   # Raw conversation example
-    ├── layer3-structured/            # Day & night log examples
-    └── layer2-knowledge/             # Daily & weekly review examples
+    ├── README.md                      # Examples overview
+    ├── layer4-raw/                    # Raw-source example
+    ├── layer3-structured/             # Day and night log examples
+    └── layer2-knowledge/              # Daily and weekly review examples
 ```
-
-**Total**: 13 files, 1759 lines of documentation
 
 ## 🚀 Quick Installation
 
 ```bash
-# One command setup
-python3 ~/.openclaw/workspace/skills/memory-pyramid-architecture/scripts/init.py
-
-# Then add cron jobs manually via OpenClaw cron interface
+python3 scripts/init.py
+python3 scripts/test_integration.py   # optional smoke test
 ```
+
+Then verify cron jobs and memory indexing in the target OpenClaw environment.
 
 ## ✨ Key Features
 
-1. **Four-Layer Pyramid** - Progressive refinement from raw → structured → knowledge → navigation
-2. **Night-Owl Optimization** - 22:00-07:00 activities belong to "last night"
-3. **Full Automation** - 6 cron jobs handle everything automatically
-4. **Token Efficient** - 90% reduction vs flat RAG approach
-5. **Production Ready** - Complete docs, examples, troubleshooting
-
-## 🌟 Community Contribution Ready
-
-This skill is designed for the OpenClaw community:
-
-- ✅ Standard skill structure (SKILL.md, scripts/, references/)
-- ✅ Comprehensive documentation (1759 lines)
-- ✅ Working examples for all 4 layers
-- ✅ Troubleshooting guide
-- ✅ MIT license (free for all)
-
-## 📊 Stats
-
-| Component | Files | Lines | Purpose |
-|-----------|-------|-------|---------|
-| SKILL.md | 1 | 131 | Main usage guide |
-| README.md | 1 | 85 | Quick start |
-| scripts/ | 2 | 162 | Setup & config |
-| references/ | 3 | 612 | Deep documentation |
-| examples/ | 6 | 769 | Template files |
-| **Total** | **13** | **1759** | **Complete package** |
+1. **Four-layer baseline** - Raw → structured → knowledge → navigation
+2. **Night-owl optimization** - 22:00-07:00 activity belongs to the previous night
+3. **Core automation** - Late Hour Sync, Micro-Sync, Daily Review, Weekly Compound
+4. **Token efficient** - distilled-first retrieval, raw expansion only when needed
+5. **Production-overlay friendly** - live status, session indexing, promotion, dreaming, KB gardening, and skill/evolver governance stay optional
+6. **Privacy-aware public docs** - avoid private deployment identifiers in reusable documentation
 
 ## 🎯 Use Cases
 
-1. **Personal Use** - Optimize your own OpenClaw memory
-2. **Team Deployment** - Standardize across team members
-3. **Community Sharing** - Contribute improvements back
-4. **Fork & Customize** - Adapt for different workflows
-
-## 💕 Credits
-
-- **Concept**: Inspired by OpenViking (ByteDance/Volcano Engine)
-- **Design**: Satoshi (夜猫子) & Duoduo
-- **Date**: 2026-02-17
-- **License**: MIT
+1. **Personal OpenClaw memory** - keep long-running work searchable and distilled
+2. **Team deployment** - standardize memory layers and cron schedules
+3. **Community sharing** - contribute reusable docs and examples
+4. **Fork and customize** - add local production overlays safely
 
 ## 🤝 Contributing
 
 Ways to contribute:
-1. Report bugs via OpenClaw community
+
+1. Report bugs via the OpenClaw community
 2. Suggest enhancements
-3. Share your customizations
+3. Share sanitized customizations
 4. Improve documentation
-5. Add new features (multi-timezone, visualization, etc.)
+5. Add new generic features such as multi-timezone support or visualization
+
+Before publishing, confirm the diff does not contain tokens, user IDs, channel IDs, private hostnames, private absolute paths, or raw private logs.
 
 ## 📚 Documentation Index
 
@@ -89,6 +71,7 @@ Ways to contribute:
 - **How to use**: SKILL.md
 - **Deep dive**: references/architecture-details.md
 - **Cron jobs**: references/cron-reference.md
+- **Production overlays**: references/production-overlay.md
 - **Fix problems**: references/troubleshooting.md
 - **See examples**: examples/
 
@@ -96,9 +79,7 @@ Ways to contribute:
 
 - OpenViking: https://github.com/volcengine/OpenViking
 - OpenClaw docs: https://docs.openclaw.ai
-- MemOS documentation
-- QMD reference
 
 ---
 
-**Ready to use!** Install with `scripts/init.py` and enjoy your optimized memory architecture 🎉
+**Ready to use.** Install with `scripts/init.py` and keep production overlays documented separately.

@@ -1,110 +1,112 @@
 ---
 name: memory-pyramid-architecture
-description: Four-layer pyramid memory architecture for OpenClaw with night-owl optimization (22:00-07:00归属前一天). Implements real-time → micro-sync → daily-review → weekly-compound workflow.
+description: Four-layer memory baseline for OpenClaw with night-owl optimization (22:00-07:00 belongs to the previous night). Implements Late Hour Sync, Micro-Sync, Daily Review, and Weekly Compound, with optional production overlays.
 triggers:
   - "setup memory architecture"
   - "initialize pyramid memory"
   - "configure night-owl memory"
   - "memory workflow setup"
 author: "Satoshi & Duoduo"
-version: "1.0.0"
-date: "2026-02-17"
+version: "1.1.0"
+date: "2026-05-07"
 ---
 
 # Memory Pyramid Architecture Skill
 
-A production-ready, four-layer memory architecture designed for OpenClaw with special optimization for night-owl users.
+A production-ready, four-layer memory baseline for OpenClaw with night-owl-friendly time boundaries.
+
+This skill describes the **portable baseline**. Production deployments may add live status, indexed session transcripts, short-term promotion/dreaming, KB gardening, or skill/evolver governance as overlays. Keep public documentation generic and avoid private deployment identifiers.
 
 ## ✨ Key Features
 
-- 🏗️ **Four-Layer Pyramid**: Raw → Structured → Knowledge → Navigation
-- 🌙 **Night-Owl Friendly**: Late night activities (22:00-07:00) belong to "last night", not split across days
-- 🔄 **Automated Workflow**: Real-time → Micro-Sync → Daily Review → Weekly Compound
-- 📊 **QMD Integration**: All layers indexed for semantic search
-- ⚡ **Token Efficient**: Progressive refinement reduces context bloat
+- 🏗️ **Four-layer pyramid**: Raw → Structured → Knowledge → Navigation
+- 🌙 **Night-owl friendly**: 22:00-07:00 activity belongs to the previous night
+- 🔄 **Core workflow**: Late Hour Sync → Micro-Sync → Daily Review → Weekly Compound
+- 📊 **Search integrated**: memory files and session transcripts can be indexed for retrieval
+- ⚡ **Token efficient**: retrieve distilled layers first, raw sources last
+- 🧩 **Overlay friendly**: optional production jobs do not change the baseline contract
 
 ## 🎯 Architecture Overview
 
-```
+```text
 Layer 1: Navigation
-└── MEMORY.md (quick index, ~150 lines)
+└── MEMORY.md
 
-Layer 2: Knowledge (Processed)
-├── topics/ (long-term thematic memory)
-├── daily_reviews/ (daily distilled essence)
-└── weekly_distills/ (weekly pattern analysis)
+Layer 2: Knowledge
+├── memory/topics/            long-term thematic truth
+├── memory/daily_reviews/     daily distilled insights
+└── memory/weekly_distills/   weekly pattern analysis
 
-Layer 3: Structured Logs (Semi-processed)
-├── YYYY-MM-DD.md (daytime 07:00-22:00)
-└── YYYY-MM-DD-last-night.md (night 22:00-07:00)
+Layer 3: Structured Logs
+├── memory/YYYY-MM-DD.md
+└── memory/YYYY-MM-DD-last-night.md
 
-Layer 4: Raw (Original)
-└── realtime-YYYY-MM-DD.md (minute-by-minute sync)
+Layer 4: Raw Sources
+├── OpenClaw session transcripts / memory index  preferred in current OpenClaw
+└── memory/realtime-YYYY-MM-DD.md                optional legacy/raw mirror
 ```
 
 ## 🚀 Quick Start
 
-### 1. Initialize the Architecture
+### 1. Initialize or verify the baseline
 
 ```bash
-# Run initialization script
-python3 ~/.openclaw/workspace/skills/memory-pyramid-architecture/scripts/init.py
+python3 scripts/init.py
 ```
 
-This will:
-- Create required directories (`daily_reviews/`, `weekly_distills/`)
-- Update `MEMORY.md` with architecture diagram
-- Add QMD collection paths to `openclaw.json`
-- Install cron jobs with correct scheduling
+This should:
 
-### 2. Verify Setup
+- Create required directories (`memory/topics/`, `memory/daily_reviews/`, `memory/weekly_distills/`)
+- Ensure `MEMORY.md` points to the memory layers
+- Register or document memory search/index paths for the local OpenClaw deployment
+- Prepare the core cron schedule from `scripts/config.json`
+
+### 2. Verify setup
 
 ```bash
-# Check directory structure
-ls -la ~/.openclaw/workspace/memory/
-
-# Verify QMD collections
-qmd list | grep memory-
-
-# Check cron jobs
 openclaw cron list
+openclaw memory status --json
+openclaw memory search "memory pyramid"
 ```
 
-## 📅 Cron Schedule
+If your environment still uses a standalone QMD CLI, `qmd list` is also useful.
 
-| Time | Job | Output |
-|------|-----|--------|
-| 07:00 | Late Hour Sync | `*-last-night.md` (night activities) |
-| 10/13/16/19/22:00 | Hourly Micro-Sync | `YYYY-MM-DD.md` updates |
-| 22:10 | Daily Review | `daily_reviews/*.md` |
-| Sun 23:55 | Weekly Compound | `weekly_distills/*.md` |
+## 📅 Core Cron Schedule
+
+| Schedule | Job | Output |
+|----------|-----|--------|
+| `0 7 * * *` | Late Hour Sync | `memory/YYYY-MM-DD-last-night.md` |
+| `0 10,13,16,19,22 * * *` | Micro-Sync | `memory/YYYY-MM-DD.md` |
+| `10 22 * * *` | Daily Review | `memory/daily_reviews/YYYY-MM-DD.md` |
+| `55 23 * * 0` | Weekly Compound | `memory/weekly_distills/YYYY-Wxx.md` |
+
+Optional health checks, short-term promotion, dreaming, or KB gardening jobs are production overlays. See `references/production-overlay.md`.
 
 ## 📖 Usage Guide
 
-### For Night Owls
+### For night owls
 
-Your late-night work (22:00-07:00) is automatically captured and associated with "last night", preserving creative flow across calendar boundaries.
+Late-night work from 22:00 to 07:00 is associated with the previous night, preserving continuity across midnight.
 
-### Daily Workflow
+### Daily workflow
 
-1. **Morning (07:00)**: Review `*-last-night.md` for yesterday's late insights
-2. **Evening (22:10)**: Check `daily_reviews/*.md` for today's summary
-3. **Sunday**: Review `weekly_distills/*.md` for pattern insights
+1. **07:00**: Late Hour Sync captures the previous night.
+2. **10/13/16/19/22:00**: Micro-Sync appends meaningful daytime activity.
+3. **22:10**: Daily Review distills the day.
+4. **Sunday 23:55**: Weekly Compound extracts patterns and repeated work.
 
-### Memory Retrieval Priority
+### Retrieval priority
 
-When searching memories, follow this priority:
-
-1. `daily_reviews/` - Most distilled daily insights
-2. `weekly_distills/` - Cross-day patterns
-3. `topics/` - Long-term thematic knowledge
-4. `YYYY-MM-DD.md` - Specific day activities
-5. `*-last-night.md` - Specific night activities
-6. `realtime-*.md` - Raw logs (last resort)
+1. `memory/daily_reviews/` - distilled daily insights
+2. `memory/weekly_distills/` - cross-day patterns
+3. `memory/topics/` - long-term thematic truth
+4. `memory/YYYY-MM-DD.md` - structured day log
+5. `memory/YYYY-MM-DD-last-night.md` - structured night log
+6. Session transcripts / raw mirror - exact recall and deep audit
 
 ## 🔧 Customization
 
-### Adjust Time Windows
+### Adjust time windows
 
 Edit `scripts/config.json`:
 
@@ -118,50 +120,38 @@ Edit `scripts/config.json`:
 }
 ```
 
-### Add New Collections
+### Add a production overlay
 
-To add a new memory layer:
+Document the overlay separately before enabling it:
 
-1. Create directory: `mkdir ~/.openclaw/workspace/memory/new_layer`
-2. Add to QMD config in `openclaw.json`
-3. Update retrieval priority in `references/retrieval-guide.md`
+- Owner / entrypoint
+- Schedule and timezone
+- Explicit model, if it uses an LLM
+- Output files
+- Delivery behavior
+- Rollback / disable procedure
+- Privacy boundaries
 
 ## 📚 Documentation
 
-- [Architecture Details](references/architecture-details.md) - Deep dive into design decisions
-- [Cron Reference](references/cron-reference.md) - All cron jobs explained
-- [Troubleshooting](references/troubleshooting.md) - Common issues and fixes
-- [Examples](examples/) - Sample memory files
+- [Architecture Details](references/architecture-details.md) - design deep dive
+- [Cron Reference](references/cron-reference.md) - core and optional cron guidance
+- [Production Overlay](references/production-overlay.md) - safe production extensions
+- [Troubleshooting](references/troubleshooting.md) - common issues and fixes
+- [Examples](examples/) - sample memory files
 
 ## 🤝 Contributing
 
-This skill is designed for the OpenClaw community. Contributions welcome!
+This skill is designed for the OpenClaw community. Contributions welcome.
 
-### To Contribute:
-
-1. Fork the skill directory
-2. Make your improvements
-3. Test thoroughly
-4. Submit via OpenClaw community channels
-
-### Areas for Contribution:
-
-- Additional time zone support
-- Integration with external memory stores
-- Visualization tools for memory flow
-- Custom refinement prompts
-- Migration tools from other architectures
+Before opening a PR, confirm that docs do not include tokens, user IDs, channel IDs, private hostnames, host-specific absolute paths, or private deployment topology.
 
 ## 🙏 Credits
 
-- **Concept**: Inspired by OpenViking (ByteDance/Volcano Engine)
+- **Concept**: Inspired by OpenViking
 - **Design**: Satoshi & Duoduo
 - **Community**: OpenClaw users
 
 ## 📄 License
 
-MIT - Free for personal and commercial use within OpenClaw ecosystem.
-
----
-
-**Questions?** Open an issue in the OpenClaw community or ask your AI assistant!
+MIT - Free for personal and commercial use within the OpenClaw ecosystem.

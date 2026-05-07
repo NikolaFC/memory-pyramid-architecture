@@ -1,126 +1,90 @@
 # Memory Pyramid Architecture for OpenClaw
 
+**Last updated: 2026-05-07**
+
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![OpenClaw](https://img.shields.io/badge/OpenClaw-Compatible-blue.svg)](https://openclaw.ai)
 
-> 🏗️ A production-ready, four-layer memory architecture for OpenClaw with special optimization for night owls.
+> 🏗️ A production-ready, four-layer memory baseline for OpenClaw with night-owl-aware session boundaries.
+
+This repository is the portable baseline. A local production deployment may add live status, session transcript indexing, short-term memory promotion, dreaming, KB gardening, or skill/evolver governance as **overlays**.
 
 ## ✨ Features
 
-- 🏗️ **Four-Layer Pyramid**: Raw → Structured → Knowledge → Navigation
-- 🌙 **Night-Owl Friendly**: Late night activities (22:00-07:00) belong to "last night"
-- 🔄 **Fully Automated**: 6 cron jobs handle everything
-- 📊 **QMD Integrated**: All layers indexed for semantic search
-- ⚡ **Token Efficient**: 90% reduction vs flat RAG
+- 🏗️ **Four-layer pyramid**: Raw → Structured → Knowledge → Navigation
+- 🌙 **Night-owl friendly**: 22:00-07:00 activity belongs to the previous night
+- 🔄 **Automated core workflow**: Late Hour Sync → Micro-Sync → Daily Review → Weekly Compound
+- 📊 **Search integrated**: memory files and session transcripts can be indexed for retrieval
+- ⚡ **Token efficient**: retrieve distilled layers first; expand to raw sources only when necessary
+- 🧩 **Production-overlay friendly**: extend safely without changing the baseline contract
 
 ## 🚀 Quick Start
 
 ```bash
-# Clone this repository
-git clone https://github.com/YOUR_USERNAME/memory-pyramid-architecture.git
-
-# Navigate to skill directory
+git clone https://github.com/<owner>/memory-pyramid-architecture.git
 cd memory-pyramid-architecture
-
-# Run initialization
 python3 scripts/init.py
+python3 scripts/test_integration.py   # optional
 ```
 
-Then add the cron jobs via OpenClaw interface.
-
-## 📁 Repository Structure
-
-```
-memory-pyramid-architecture/
-├── SKILL.md                    # Main skill documentation
-├── README.md                   # This file
-├── scripts/
-│   ├── init.py                # One-command setup
-│   └── config.json            # Configuration
-├── references/                # Detailed docs
-│   ├── architecture-details.md
-│   ├── cron-reference.md
-│   └── troubleshooting.md
-└── examples/                  # Template files
-    ├── layer4-raw/
-    ├── layer3-structured/
-    └── layer2-knowledge/
-```
+Then verify the cron jobs and memory index in your OpenClaw environment.
 
 ## 🏗️ Architecture Overview
 
-```
+```text
 Layer 1: Navigation
-└── MEMORY.md (quick index)
+└── MEMORY.md
 
-Layer 2: Knowledge (Processed)
-├── topics/ (long-term memory)
-├── daily_reviews/ (daily essence)
-└── weekly_distills/ (weekly patterns)
+Layer 2: Knowledge
+├── memory/topics/
+├── memory/daily_reviews/
+└── memory/weekly_distills/
 
-Layer 3: Structured (Semi-processed)
-├── YYYY-MM-DD.md (daytime 07:00-22:00)
-└── YYYY-MM-DD-last-night.md (night 22:00-07:00)
+Layer 3: Structured Logs
+├── memory/YYYY-MM-DD.md
+└── memory/YYYY-MM-DD-last-night.md
 
-Layer 4: Raw (Original)
-└── realtime-YYYY-MM-DD.md (minute-by-minute)
+Layer 4: Raw Sources
+├── OpenClaw session transcripts / memory index  preferred in current OpenClaw
+└── memory/realtime-YYYY-MM-DD.md                optional legacy/raw mirror
 ```
 
-## ⏰ Automation Schedule
+## ⏰ Core Schedule
 
-| Time | Job | Output |
-|------|-----|--------|
-| 07:00 | Late Hour Sync | `*-last-night.md` |
-| 10/13/16/19/22:00 | Hourly Micro-Sync | `YYYY-MM-DD.md` |
-| 22:10 | Daily Review | `daily_reviews/*.md` |
-| Sun 23:55 | Weekly Compound | `weekly_distills/*.md` |
+| Schedule | Job | Output |
+|----------|-----|--------|
+| `0 7 * * *` | Late Hour Sync | `memory/YYYY-MM-DD-last-night.md` |
+| `0 10,13,16,19,22 * * *` | Micro-Sync | `memory/YYYY-MM-DD.md` |
+| `10 22 * * *` | Daily Review | `memory/daily_reviews/YYYY-MM-DD.md` |
+| `55 23 * * 0` | Weekly Compound | `memory/weekly_distills/YYYY-Wxx.md` |
+
+Optional health, promotion, and dreaming jobs belong in a production overlay. See [references/production-overlay.md](references/production-overlay.md).
+
+## 🔍 Validation
+
+```bash
+openclaw cron list
+openclaw memory status --json
+openclaw memory search "memory pyramid"
+```
+
+If your deployment still uses a standalone QMD CLI, `qmd list` is also useful.
 
 ## 📚 Documentation
 
-- **[SKILL.md](SKILL.md)** - Complete usage guide
-- **[references/architecture-details.md](references/architecture-details.md)** - Design deep dive
-- **[references/cron-reference.md](references/cron-reference.md)** - All cron jobs explained
-- **[references/troubleshooting.md](references/troubleshooting.md)** - Common issues & fixes
-
-## 🌟 Why Night-Owl Optimized?
-
-Traditional systems split activities at midnight, cutting your creative flow in half:
-
-```
-22:00 - Start deep work
-02:00 - Brilliant insight  ← Belongs to "today" but context is "yesterday"
-07:00 - Continue work
-```
-
-Memory Pyramid preserves the flow:
-
-```
-22:00-07:00 → 2026-02-16-last-night.md  ← Complete session preserved
-```
+- [SKILL.md](SKILL.md) - setup and usage
+- [references/architecture-details.md](references/architecture-details.md) - design deep dive
+- [references/cron-reference.md](references/cron-reference.md) - cron guidance
+- [references/production-overlay.md](references/production-overlay.md) - production extensions and privacy boundaries
+- [references/troubleshooting.md](references/troubleshooting.md) - common fixes
 
 ## 🤝 Contributing
 
-Contributions welcome! Please:
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Submit a pull request
-
-## 🙏 Credits
-
-- **Concept**: Inspired by [OpenViking](https://github.com/volcengine/OpenViking) (ByteDance/Volcano Engine)
-- **Design**: [Satoshi](https://github.com/YOUR_USERNAME) & Duoduo
-- **Community**: OpenClaw users
+Please avoid committing private deployment identifiers, tokens, user IDs, channel IDs, or host-specific absolute paths. Keep reusable docs generic.
 
 ## 📄 License
 
-[MIT](LICENSE) - Free for personal and commercial use within OpenClaw ecosystem.
-
-## 🔗 Links
-
-- [OpenClaw Documentation](https://docs.openclaw.ai)
-- [OpenViking Repository](https://github.com/volcengine/OpenViking)
-- [Issues](../../issues)
+[MIT](LICENSE)
 
 ---
 

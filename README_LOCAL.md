@@ -1,67 +1,80 @@
 # Memory Pyramid Architecture
 
-> 🏗️ Production-ready four-layer memory architecture for OpenClaw
-> 🌙 Optimized for night owls - preserve your creative flow!
+> 🏗️ Production-ready four-layer memory baseline for OpenClaw
+> 🌙 Optimized for night owls: 22:00-07:00 belongs to the previous night.
 
 ## What is This?
 
-A battle-tested memory system that organizes your OpenClaw conversations into a progressive refinement pipeline:
+A memory system that organizes OpenClaw conversations into a progressive refinement pipeline:
 
+```text
+Raw Sources → Structured Logs → Daily Insights → Weekly Patterns → Navigation
 ```
-Raw Conversations → Structured Logs → Daily Insights → Weekly Patterns
-     (Auto)            (Auto)         (Auto)          (Auto)
-```
+
+The portable baseline is intentionally small. Local production deployments can add overlays such as live status, session indexing, short-term promotion, dreaming, KB gardening, and skill/evolver governance.
 
 ## Why Use It?
 
 | Problem | Solution |
 |---------|----------|
 | Memory scattered across days | Unified timeline with night-owl boundaries |
-| Can't find past insights | Four-layer progressive refinement |
-| Context bloat | Automatic summarization at each layer |
-| Late-night work split across days | 22:00-07:00 belongs to "last night" |
+| Hard to find past insights | Progressive refinement and search index |
+| Context bloat | Read distilled layers first |
+| Late-night work split across dates | 22:00-07:00 belongs to the previous night |
+| Production needs differ | Keep local overlays separate from the public baseline |
 
 ## Installation
 
 ```bash
-# One-command setup
-python3 ~/.openclaw/workspace/skills/memory-pyramid-architecture/scripts/init.py
+python3 scripts/init.py
 ```
+
+If this repository is installed as an OpenClaw skill, run the same command from the skill directory.
 
 ## Quick Example
 
-After running for a week, your memory structure looks like:
+After running for a week, the memory structure may look like:
 
-```
+```text
 memory/
 ├── 2026-02-10.md                    # Daytime activities
 ├── 2026-02-10-last-night.md         # Night activities (22:00-07:00)
 ├── daily_reviews/
-│   ├── 2026-02-10.md               # Daily distilled insights
+│   ├── 2026-02-10.md                # Daily distilled insights
 │   └── 2026-02-11.md
 ├── weekly_distills/
-│   └── 2026-W06.md                 # Weekly pattern analysis
+│   └── 2026-W06.md                  # Weekly pattern analysis
 └── topics/
-    └── project_alfa.md              # Long-term knowledge
+    └── project_example.md           # Long-term knowledge
 ```
 
 ## How It Works
 
-1. **Every minute**: Conversations sync to `realtime-*.md`
-2. **Every 3 hours** (daytime): Important activities extracted to `YYYY-MM-DD.md`
-3. **07:00 daily**: Last night's activities archived to `*-last-night.md`
-4. **22:10 daily**: Full day summarized to `daily_reviews/*.md`
-5. **Sunday 23:55**: Week analyzed for patterns in `weekly_distills/*.md`
+1. **Raw sources**: OpenClaw session transcripts / memory index, or optional `realtime-*.md` mirror.
+2. **Micro-Sync**: meaningful daytime activity goes to `YYYY-MM-DD.md`.
+3. **Late Hour Sync**: 22:00-07:00 activity goes to `YYYY-MM-DD-last-night.md`.
+4. **Daily Review**: daily logs become `daily_reviews/*.md`.
+5. **Weekly Compound**: daily reviews become `weekly_distills/*.md`.
+6. **Navigation**: durable, high-signal pointers go to `MEMORY.md`.
+
+## Validation
+
+```bash
+openclaw cron list
+openclaw memory status --json
+openclaw memory search "memory pyramid"
+```
 
 ## Documentation
 
 - Full guide: [SKILL.md](SKILL.md)
 - Architecture deep dive: [references/architecture-details.md](references/architecture-details.md)
+- Production overlays: [references/production-overlay.md](references/production-overlay.md)
 - Troubleshooting: [references/troubleshooting.md](references/troubleshooting.md)
 
 ## Community
 
-This skill is part of the OpenClaw ecosystem. Share improvements, report issues, and collaborate!
+This skill is part of the OpenClaw ecosystem. Share improvements, report issues, and collaborate.
 
 ---
 
