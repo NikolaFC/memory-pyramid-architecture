@@ -12,11 +12,16 @@ memory-pyramid-architecture/
 ├── README.md                          # Quick start guide
 ├── VERSION                            # Current release version
 ├── CHANGELOG.md                       # Release history
+├── package.json                       # npm-style script entrypoints
+├── .github/workflows/ci.yml           # GitHub Actions verification
 ├── README_EN.md / README_ZH.md        # Language variants
 ├── README_LOCAL.md                    # Local deployment notes
 ├── scripts/
 │   ├── init.py                        # Setup / verification helper
 │   ├── config.json                    # Baseline layer and cron config
+│   ├── verify_suite.py                # Python compile + integration checks
+│   ├── hygiene_scan.py                # Hygiene and secret-pattern scan
+│   ├── sync_drift_check.py            # Version/docs/CI drift check
 │   ├── test_integration.py            # Smoke test
 │   └── visualize.py                   # Flow diagram helper
 ├── references/
@@ -38,7 +43,9 @@ memory-pyramid-architecture/
 
 ```bash
 python3 scripts/init.py
-python3 scripts/test_integration.py   # optional smoke test
+python3 scripts/verify_suite.py
+python3 scripts/hygiene_scan.py
+python3 scripts/sync_drift_check.py
 ```
 
 Then verify cron jobs and memory indexing in the target OpenClaw environment.

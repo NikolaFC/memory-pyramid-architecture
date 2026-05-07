@@ -65,6 +65,17 @@ This should:
 
 ### 2. Verify setup
 
+Repository checks:
+
+```bash
+python3 scripts/verify_suite.py
+python3 scripts/hygiene_scan.py
+python3 scripts/sync_drift_check.py
+python3 scripts/test_integration.py
+```
+
+Deployment checks:
+
 ```bash
 openclaw cron list
 openclaw memory status --json

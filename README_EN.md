@@ -26,7 +26,9 @@ This repository is the portable baseline. A local production deployment may add 
 git clone https://github.com/<owner>/memory-pyramid-architecture.git
 cd memory-pyramid-architecture
 python3 scripts/init.py
-python3 scripts/test_integration.py   # optional
+python3 scripts/verify_suite.py
+python3 scripts/hygiene_scan.py
+python3 scripts/sync_drift_check.py
 ```
 
 Then verify the cron jobs and memory index in your OpenClaw environment.
@@ -63,6 +65,17 @@ Layer 4: Raw Sources
 Optional health, promotion, and dreaming jobs belong in a production overlay. See [references/production-overlay.md](references/production-overlay.md).
 
 ## 🔍 Validation
+
+Repository checks:
+
+```bash
+python3 scripts/verify_suite.py
+python3 scripts/hygiene_scan.py
+python3 scripts/sync_drift_check.py
+python3 scripts/test_integration.py
+```
+
+Deployment checks:
 
 ```bash
 openclaw cron list

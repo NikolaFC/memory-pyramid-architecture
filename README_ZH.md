@@ -26,7 +26,9 @@
 git clone https://github.com/<owner>/memory-pyramid-architecture.git
 cd memory-pyramid-architecture
 python3 scripts/init.py
-python3 scripts/test_integration.py   # 可选冒烟
+python3 scripts/verify_suite.py
+python3 scripts/hygiene_scan.py
+python3 scripts/sync_drift_check.py
 ```
 
 随后在 OpenClaw 环境中确认 cron 与 memory index 状态。
@@ -63,6 +65,17 @@ Layer 4: Raw Sources 原始来源层
 健康检查、短期记忆晋升、dreaming 等属于生产叠加层，见 [production-overlay.md](references/production-overlay.md)。
 
 ## 🔍 验收
+
+仓库检查：
+
+```bash
+python3 scripts/verify_suite.py
+python3 scripts/hygiene_scan.py
+python3 scripts/sync_drift_check.py
+python3 scripts/test_integration.py
+```
+
+部署检查：
 
 ```bash
 openclaw cron list

@@ -30,7 +30,10 @@ cd memory-pyramid-architecture
 # Initialize or verify the baseline files
 python3 scripts/init.py
 
-# Optional smoke test
+# Full repository verification
+python3 scripts/verify_suite.py
+python3 scripts/hygiene_scan.py
+python3 scripts/sync_drift_check.py
 python3 scripts/test_integration.py
 ```
 
@@ -45,9 +48,14 @@ memory-pyramid-architecture/
 ├── CHANGELOG.md
 ├── SKILL.md
 ├── PACKAGE.md
+├── package.json
+├── .github/workflows/ci.yml
 ├── scripts/
 │   ├── init.py                # setup / verification helper
 │   ├── config.json            # baseline layers and cron schedules
+│   ├── verify_suite.py        # Python compile + integration checks
+│   ├── hygiene_scan.py        # repository hygiene and secret-pattern scan
+│   ├── sync_drift_check.py    # version/docs/CI drift check
 │   ├── test_integration.py    # smoke test
 │   └── visualize.py           # flow diagram helper
 ├── references/
@@ -97,6 +105,14 @@ Layer 4: Raw sources
 Optional production jobs, such as search-index health checks or short-term promotion/dreaming jobs, are overlays. See [production-overlay.md](references/production-overlay.md).
 
 ## 🔍 Validation
+
+Repository checks:
+
+```bash
+python3 scripts/verify_suite.py
+python3 scripts/hygiene_scan.py
+python3 scripts/sync_drift_check.py
+```
 
 Generic checks:
 
