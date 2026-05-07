@@ -1,7 +1,9 @@
 # OpenClaw 记忆金字塔架构
 
+**当前版本：1.1.0**
 **最后更新：2026-05-07**
 
+[![Version](https://img.shields.io/badge/version-1.1.0-blue.svg)](VERSION)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![OpenClaw](https://img.shields.io/badge/OpenClaw-Compatible-blue.svg)](https://openclaw.ai)
 
@@ -76,6 +78,8 @@ qmd list
 
 ## 📚 文档
 
+- [CHANGELOG.md](CHANGELOG.md)：版本历史
+- [VERSION](VERSION)：当前发布版本
 - [SKILL.md](SKILL.md)：使用与接入说明
 - [references/architecture-details.md](references/architecture-details.md)：架构详解
 - [references/cron-reference.md](references/cron-reference.md)：cron 参考

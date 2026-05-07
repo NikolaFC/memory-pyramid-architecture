@@ -3,6 +3,10 @@
 > 🏗️ Production-ready four-layer memory baseline for OpenClaw
 > 🌙 Optimized for night owls: 22:00-07:00 belongs to the previous night.
 
+## Version
+
+Current release: **1.1.0**. See [CHANGELOG.md](CHANGELOG.md) for release notes.
+
 ## What is This?
 
 A memory system that organizes OpenClaw conversations into a progressive refinement pipeline:

@@ -1,11 +1,17 @@
 # Memory Pyramid Architecture Skill - Summary
 
+**Current version: 1.1.0**
+
+See [CHANGELOG.md](CHANGELOG.md) for release history.
+
 ## 📦 Package Contents
 
 ```text
 memory-pyramid-architecture/
 ├── SKILL.md                           # Main skill documentation
 ├── README.md                          # Quick start guide
+├── VERSION                            # Current release version
+├── CHANGELOG.md                       # Release history
 ├── README_EN.md / README_ZH.md        # Language variants
 ├── README_LOCAL.md                    # Local deployment notes
 ├── scripts/

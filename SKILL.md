@@ -13,6 +13,8 @@ date: "2026-05-07"
 
 # Memory Pyramid Architecture Skill
 
+**Current version: 1.1.0**
+
 A production-ready, four-layer memory baseline for OpenClaw with night-owl-friendly time boundaries.
 
 This skill describes the **portable baseline**. Production deployments may add live status, indexed session transcripts, short-term promotion/dreaming, KB gardening, or skill/evolver governance as overlays. Keep public documentation generic and avoid private deployment identifiers.
@@ -134,6 +136,7 @@ Document the overlay separately before enabling it:
 
 ## 📚 Documentation
 
+- [Changelog](CHANGELOG.md) - release history
 - [Architecture Details](references/architecture-details.md) - design deep dive
 - [Cron Reference](references/cron-reference.md) - core and optional cron guidance
 - [Production Overlay](references/production-overlay.md) - safe production extensions

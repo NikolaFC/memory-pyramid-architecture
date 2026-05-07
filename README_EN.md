@@ -1,7 +1,9 @@
 # Memory Pyramid Architecture for OpenClaw
 
+**Version: 1.1.0**
 **Last updated: 2026-05-07**
 
+[![Version](https://img.shields.io/badge/version-1.1.0-blue.svg)](VERSION)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![OpenClaw](https://img.shields.io/badge/OpenClaw-Compatible-blue.svg)](https://openclaw.ai)
 
@@ -72,6 +74,8 @@ If your deployment still uses a standalone QMD CLI, `qmd list` is also useful.
 
 ## 📚 Documentation
 
+- [CHANGELOG.md](CHANGELOG.md) - version history
+- [VERSION](VERSION) - current release version
 - [SKILL.md](SKILL.md) - setup and usage
 - [references/architecture-details.md](references/architecture-details.md) - design deep dive
 - [references/cron-reference.md](references/cron-reference.md) - cron guidance

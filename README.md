@@ -1,13 +1,15 @@
 # Memory Pyramid Architecture for OpenClaw
 
+**Version: 1.1.0**
 **Last updated: 2026-05-07**
 
+[![Version](https://img.shields.io/badge/version-1.1.0-blue.svg)](VERSION)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![OpenClaw](https://img.shields.io/badge/OpenClaw-Compatible-blue.svg)](https://openclaw.ai)
 
 > 🏗️ A production-ready, four-layer memory baseline for OpenClaw with night-owl-aware session boundaries.
 
-This repository documents the **portable baseline**. Real OpenClaw production environments may add a small production overlay: live status files, indexed session transcripts, short-term promotion/dreaming pipelines, KB gardening, and skill/evolver boundaries. Those extensions should be documented as overlays, not as a incompatible “v2 rewrite”.
+This repository documents the **portable baseline**. Real OpenClaw production environments may add a small production overlay: live status files, indexed session transcripts, short-term promotion/dreaming pipelines, KB gardening, and skill/evolver boundaries. Those extensions should be documented as overlays, not as an incompatible “v2 rewrite”.
 
 ## ✨ Features
 
@@ -39,6 +41,8 @@ Then add or verify the OpenClaw cron jobs described in `scripts/config.json` and
 ```text
 memory-pyramid-architecture/
 ├── README.md / README_EN.md / README_ZH.md / README_LOCAL.md
+├── VERSION
+├── CHANGELOG.md
 ├── SKILL.md
 ├── PACKAGE.md
 ├── scripts/
@@ -110,6 +114,8 @@ qmd list
 
 ## 📚 Documentation
 
+- **[CHANGELOG.md](CHANGELOG.md)** - Version history
+- **[VERSION](VERSION)** - Current release version
 - **[SKILL.md](SKILL.md)** - Skill usage and setup guide
 - **[references/architecture-details.md](references/architecture-details.md)** - Design deep dive
 - **[references/cron-reference.md](references/cron-reference.md)** - Core and optional cron guidance
