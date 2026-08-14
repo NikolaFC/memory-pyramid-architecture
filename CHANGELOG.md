@@ -4,6 +4,20 @@ All notable changes to Memory Pyramid Architecture are documented here.
 
 The format loosely follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project uses semantic versioning for public documentation releases.
 
+## [1.2.0] - 2026-08-14
+
+### Added
+
+- Added `references/dsh-adapter.md`: deployment mapping for DeepSeek Harness (cron engine requirements, session-record extraction, glob context, append output, previous-date naming, retrieval mapping, validation checklist).
+- Added a harness self-heal convention: cron jobs that depend on newer engine capabilities can be marked `awaitingEngineUpgrade` and are auto-enabled after the engine restarts (documented as a general pattern for any harness cron engine).
+
+### Changed
+
+- Rewrote `scripts/init.py` as harness-agnostic: creates layer directories (`topics/`, `daily_reviews/`, `weekly_distills/`) and optionally the MEMORY.md diagram under an explicit `--root` (or `MEMORY_PYRAMID_DIR`); removed hardcoded `~/.openclaw/workspace` layout, `openclaw.json` QMD injection, and `openclaw cron`/`qmd` CLI calls. The script now refuses to guess a default location.
+- Deprecated `qmd_collections` in `scripts/config.json` (OpenClaw/QMD-specific; non-OpenClaw deployments use plain-file retrieval via `retrieval_priority`).
+- Generalized the raw-source layer to harness-native session records (OpenClaw transcripts, DSH session jsonl, etc.).
+- Updated README / README_EN / README_ZH / SKILL.md / PACKAGE.md with harness-adapter terminology, version 1.2.0, and the new init usage.
+
 ## [1.1.0] - 2026-05-07
 
 ### Added

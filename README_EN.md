@@ -1,13 +1,13 @@
-# Memory Pyramid Architecture for OpenClaw
+# Memory Pyramid Architecture
 
-**Version: 1.1.0**
-**Last updated: 2026-05-07**
+**Version: 1.2.0**
+**Last updated: 2026-08-14**
 
-[![Version](https://img.shields.io/badge/version-1.1.0-blue.svg)](VERSION)
+[![Version](https://img.shields.io/badge/version-1.2.0-blue.svg)](VERSION)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![OpenClaw](https://img.shields.io/badge/OpenClaw-Compatible-blue.svg)](https://openclaw.ai)
 
-> 🏗️ A production-ready, four-layer memory baseline for OpenClaw with night-owl-aware session boundaries.
+> 🏗️ A production-ready, four-layer memory baseline with night-owl-aware session boundaries. Harness-agnostic at its core, with per-harness adapters (OpenClaw native, DeepSeek Harness via the DSH adapter).
 
 This repository is the portable baseline. A local production deployment may add live status, session transcript indexing, short-term memory promotion, dreaming, KB gardening, or skill/evolver governance as **overlays**.
 
@@ -25,13 +25,13 @@ This repository is the portable baseline. A local production deployment may add 
 ```bash
 git clone https://github.com/<owner>/memory-pyramid-architecture.git
 cd memory-pyramid-architecture
-python3 scripts/init.py
+python3 scripts/init.py --root <memory-root>
 python3 scripts/verify_suite.py
 python3 scripts/hygiene_scan.py
 python3 scripts/sync_drift_check.py
 ```
 
-Then verify the cron jobs and memory index in your OpenClaw environment.
+Then install the four cron jobs in your harness: OpenClaw deployments follow `references/cron-reference.md`; DeepSeek Harness deployments follow `references/dsh-adapter.md`.
 
 ## 🏗️ Architecture Overview
 
@@ -49,8 +49,8 @@ Layer 3: Structured Logs
 └── memory/YYYY-MM-DD-last-night.md
 
 Layer 4: Raw Sources
-├── OpenClaw session transcripts / memory index  preferred in current OpenClaw
-└── memory/realtime-YYYY-MM-DD.md                optional legacy/raw mirror
+├── harness-native session records  preferred raw source (OpenClaw transcripts, DSH session jsonl, ...)
+└── memory/realtime-YYYY-MM-DD.md  optional legacy/raw mirror
 ```
 
 ## ⏰ Core Schedule
@@ -75,7 +75,7 @@ python3 scripts/sync_drift_check.py
 python3 scripts/test_integration.py
 ```
 
-Deployment checks:
+Deployment checks (OpenClaw deployments only):
 
 ```bash
 openclaw cron list
@@ -93,6 +93,7 @@ If your deployment still uses a standalone QMD CLI, `qmd list` is also useful.
 - [references/architecture-details.md](references/architecture-details.md) - design deep dive
 - [references/cron-reference.md](references/cron-reference.md) - cron guidance
 - [references/production-overlay.md](references/production-overlay.md) - production extensions and privacy boundaries
+- [references/dsh-adapter.md](references/dsh-adapter.md) - DeepSeek Harness deployment mapping
 - [references/troubleshooting.md](references/troubleshooting.md) - common fixes
 
 ## 🤝 Contributing

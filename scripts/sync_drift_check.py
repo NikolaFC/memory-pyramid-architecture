@@ -26,15 +26,15 @@ def main() -> int:
         if name not in scripts:
             raise AssertionError(f"package.json missing script {name}")
 
-    for marker in ("Version: 1.1.0", "production-overlay.md", "scripts/test_integration.py"):
+    for marker in (f"Version: {version}", "production-overlay.md", "scripts/test_integration.py"):
         require_contains("README.md", marker)
-    for marker in ("Version: 1.1.0", "production-overlay", "scripts/test_integration.py"):
+    for marker in (f"Version: {version}", "production-overlay", "scripts/test_integration.py"):
         require_contains("README_EN.md", marker)
-    for marker in ("版本：1.1.0", "production-overlay", "scripts/test_integration.py"):
+    for marker in (f"版本：{version}", "production-overlay", "scripts/test_integration.py"):
         require_contains("README_ZH.md", marker)
-    for marker in ("version: \"1.1.0\"", "production-overlay", "scripts/test_integration.py"):
+    for marker in (f'version: "{version}"', "production-overlay", "scripts/test_integration.py"):
         require_contains("SKILL.md", marker)
-    for marker in ("Version", "1.1.0"):
+    for marker in ("Version", version):
         require_contains("PACKAGE.md", marker)
 
     ci = ROOT / ".github" / "workflows" / "ci.yml"

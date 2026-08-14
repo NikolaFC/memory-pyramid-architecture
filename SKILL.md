@@ -1,21 +1,21 @@
 ---
 name: memory-pyramid-architecture
-description: Four-layer memory baseline for OpenClaw with night-owl optimization (22:00-07:00 belongs to the previous night). Implements Late Hour Sync, Micro-Sync, Daily Review, and Weekly Compound, with optional production overlays.
+description: Four-layer memory baseline with night-owl optimization (22:00-07:00 belongs to the previous night). Implements Late Hour Sync, Micro-Sync, Daily Review, and Weekly Compound, with optional production overlays. Harness-agnostic core; per-harness adapters (OpenClaw native, DSH via references/dsh-adapter.md).
 triggers:
   - "setup memory architecture"
   - "initialize pyramid memory"
   - "configure night-owl memory"
   - "memory workflow setup"
 author: "Satoshi & Duoduo"
-version: "1.1.0"
-date: "2026-05-07"
+version: "1.2.0"
+date: "2026-08-14"
 ---
 
 # Memory Pyramid Architecture Skill
 
-**Current version: 1.1.0**
+**Current version: 1.2.0**
 
-A production-ready, four-layer memory baseline for OpenClaw with night-owl-friendly time boundaries.
+A production-ready, four-layer memory baseline with night-owl-friendly time boundaries. Originally built for OpenClaw; the baseline itself is harness-agnostic, with per-harness adapter docs (OpenClaw native, `references/dsh-adapter.md` for DeepSeek Harness).
 
 This skill describes the **portable baseline**. Production deployments may add live status, indexed session transcripts, short-term promotion/dreaming, KB gardening, or skill/evolver governance as overlays. Keep public documentation generic and avoid private deployment identifiers.
 
@@ -44,8 +44,8 @@ Layer 3: Structured Logs
 └── memory/YYYY-MM-DD-last-night.md
 
 Layer 4: Raw Sources
-├── OpenClaw session transcripts / memory index  preferred in current OpenClaw
-└── memory/realtime-YYYY-MM-DD.md                optional legacy/raw mirror
+├── harness-native session records  preferred raw source (OpenClaw transcripts, DSH session jsonl, ...)
+└── memory/realtime-YYYY-MM-DD.md  optional legacy/raw mirror
 ```
 
 ## 🚀 Quick Start
@@ -53,15 +53,14 @@ Layer 4: Raw Sources
 ### 1. Initialize or verify the baseline
 
 ```bash
-python3 scripts/init.py
+python3 scripts/init.py --root <memory-root>
 ```
 
 This should:
 
-- Create required directories (`memory/topics/`, `memory/daily_reviews/`, `memory/weekly_distills/`)
-- Ensure `MEMORY.md` points to the memory layers
-- Register or document memory search/index paths for the local OpenClaw deployment
-- Prepare the core cron schedule from `scripts/config.json`
+- Create required directories (`topics/`, `daily_reviews/`, `weekly_distills/`)
+- Optionally append the architecture diagram to `<memory-root>/MEMORY.md`
+- Print the core cron contract (harness-specific installation is separate)
 
 ### 2. Verify setup
 
@@ -74,7 +73,7 @@ python3 scripts/sync_drift_check.py
 python3 scripts/test_integration.py
 ```
 
-Deployment checks:
+Deployment checks (OpenClaw deployments only):
 
 ```bash
 openclaw cron list
@@ -83,6 +82,9 @@ openclaw memory search "memory pyramid"
 ```
 
 If your environment still uses a standalone QMD CLI, `qmd list` is also useful.
+
+For other harnesses, follow the corresponding adapter document
+(e.g. `references/dsh-adapter.md` for DeepSeek Harness).
 
 ## 📅 Core Cron Schedule
 
@@ -151,12 +153,13 @@ Document the overlay separately before enabling it:
 - [Architecture Details](references/architecture-details.md) - design deep dive
 - [Cron Reference](references/cron-reference.md) - core and optional cron guidance
 - [Production Overlay](references/production-overlay.md) - safe production extensions
+- [DSH Adapter](references/dsh-adapter.md) - DeepSeek Harness deployment mapping
 - [Troubleshooting](references/troubleshooting.md) - common issues and fixes
 - [Examples](examples/) - sample memory files
 
 ## 🤝 Contributing
 
-This skill is designed for the OpenClaw community. Contributions welcome.
+This skill began in the OpenClaw community; contributions from any harness community are welcome.
 
 Before opening a PR, confirm that docs do not include tokens, user IDs, channel IDs, private hostnames, host-specific absolute paths, or private deployment topology.
 
@@ -164,8 +167,8 @@ Before opening a PR, confirm that docs do not include tokens, user IDs, channel 
 
 - **Concept**: Inspired by OpenViking
 - **Design**: Satoshi & Duoduo
-- **Community**: OpenClaw users
+- **Community**: OpenClaw users and friends
 
 ## 📄 License
 
-MIT - Free for personal and commercial use within the OpenClaw ecosystem.
+MIT - Free for personal and commercial use.

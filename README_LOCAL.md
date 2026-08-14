@@ -1,11 +1,11 @@
 # Memory Pyramid Architecture
 
-> 🏗️ Production-ready four-layer memory baseline for OpenClaw
+> 🏗️ Production-ready four-layer memory baseline (harness-agnostic)
 > 🌙 Optimized for night owls: 22:00-07:00 belongs to the previous night.
 
 ## Version
 
-Current release: **1.1.0**. See [CHANGELOG.md](CHANGELOG.md) for release notes.
+Current release: **1.2.0**. See [CHANGELOG.md](CHANGELOG.md) for release notes.
 
 ## What is This?
 

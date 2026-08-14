@@ -44,6 +44,7 @@
     "memory-topics",
     "memory-root"
   ],
+  "_deprecated_note": "qmd_collections is OpenClaw/QMD-specific and kept only for backward reference. Non-OpenClaw deployments (e.g. DSH) use plain-file retrieval via retrieval_priority instead; see references/dsh-adapter.md.",
   "retrieval_priority": [
     "daily_reviews",
     "weekly_distills", 

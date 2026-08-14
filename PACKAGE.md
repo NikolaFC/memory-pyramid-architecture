@@ -1,6 +1,6 @@
 # Memory Pyramid Architecture Skill - Summary
 
-**Current version: 1.1.0**
+**Current version: 1.2.0**
 
 See [CHANGELOG.md](CHANGELOG.md) for release history.
 
@@ -28,6 +28,7 @@ memory-pyramid-architecture/
 │   ├── architecture-details.md        # Deep dive into design
 │   ├── cron-reference.md              # Core and optional cron guidance
 │   ├── production-overlay.md          # Production overlay and privacy boundary
+│   ├── dsh-adapter.md                  # DeepSeek Harness deployment mapping
 │   ├── kb-gardener-workflow-v0.1.md   # Optional knowledge-base overlay
 │   ├── topic-routing-policy-v0.1.md   # Topic routing policy
 │   ├── topic-scope-template.md        # Topic contract template
@@ -42,13 +43,13 @@ memory-pyramid-architecture/
 ## 🚀 Quick Installation
 
 ```bash
-python3 scripts/init.py
+python3 scripts/init.py --root <memory-root>
 python3 scripts/verify_suite.py
 python3 scripts/hygiene_scan.py
 python3 scripts/sync_drift_check.py
 ```
 
-Then verify cron jobs and memory indexing in the target OpenClaw environment.
+Then install the four cron jobs in the target harness (OpenClaw: `references/cron-reference.md`; DeepSeek Harness: `references/dsh-adapter.md`).
 
 ## ✨ Key Features
 

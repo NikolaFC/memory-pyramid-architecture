@@ -1,60 +1,65 @@
 #!/usr/bin/env python3
 """
-Memory Pyramid Architecture - Initialization Script
+Memory Pyramid Architecture - Initialization Script (harness-agnostic)
 
-Sets up the complete four-layer memory architecture:
-1. Creates required directories
-2. Updates MEMORY.md with architecture diagram
-3. Configures QMD collections in openclaw.json
-4. Installs cron jobs with proper scheduling
+Sets up the four-layer memory directory baseline under an explicit root:
+  1. Creates layer directories (topics / daily_reviews / weekly_distills)
+  2. Optionally appends the architecture diagram to <root>/MEMORY.md
+  3. Prints the cron-job contract (harness-specific installation is documented
+     separately; see references/dsh-adapter.md for the DSH recipe)
 
-Author: OpenClaw Community
-Version: 1.0.0
+The memory root must be provided explicitly (--root or MEMORY_PYRAMID_DIR).
+We intentionally refuse to guess a default location: silently creating the
+baseline in the wrong place is worse than failing loudly.
+
+Usage:
+  python3 scripts/init.py --root <memory-root>
+
+Version: 1.1.0
 """
 
+import argparse
 import os
-import json
-import subprocess
 from datetime import datetime
 
-WORKSPACE = os.path.expanduser("~/.openclaw/workspace")
-MEMORY_DIR = f"{WORKSPACE}/memory"
-CONFIG_FILE = f"{WORKSPACE}/skills/memory-pyramid-architecture/scripts/config.json"
+VERSION = "1.1.0"
 
 def log(message):
     print(f"[INIT] {message}")
 
-def create_directories():
-    """Create required memory directories"""
+def create_directories(root):
     dirs = [
-        f"{MEMORY_DIR}/daily_reviews",
-        f"{MEMORY_DIR}/weekly_distills",
+        os.path.join(root, "topics"),
+        os.path.join(root, "daily_reviews"),
+        os.path.join(root, "weekly_distills"),
     ]
-    
     for d in dirs:
         os.makedirs(d, exist_ok=True)
-        log(f"Created directory: {d}")
+        log(f"Directory ready: {d}")
 
-def update_memory_md():
-    """Add architecture diagram to MEMORY.md if not present"""
-    memory_md = f"{WORKSPACE}/MEMORY.md"
-    
-    # Check if already has pyramid architecture
-    with open(memory_md, 'r', encoding='utf-8') as f:
+ARCHITECTURE_MARKER = "记忆架构图（金字塔模型·夜猫子版）"
+
+def update_memory_md(root):
+    """Append the architecture diagram to <root>/MEMORY.md if not present."""
+    memory_md = os.path.join(root, "MEMORY.md")
+    if not os.path.exists(memory_md):
+        log(f"No MEMORY.md at {memory_md} — skipping diagram (create it first if this is the navigation layer).")
+        return
+
+    with open(memory_md, "r", encoding="utf-8") as f:
         content = f.read()
-        if "记忆架构图（金字塔模型·夜猫子版）" in content:
-            log("MEMORY.md already has pyramid architecture diagram")
-            return
-    
-    # Append architecture section
+    if ARCHITECTURE_MARKER in content:
+        log("MEMORY.md already has the pyramid architecture diagram")
+        return
+
     architecture_section = """
 
 ---
 
 ## 📊 记忆架构图（金字塔模型·夜猫子版）
 
-> 自动生成于: {datetime.now().strftime('%Y-%m-%d')}
-> 详见: `docs/guides/memory-architecture-workflow.md`
+> 自动生成于: {now}
+> 基线定义见仓库 SKILL.md / references/architecture-details.md
 
 ```
 第一层：导航层
@@ -70,100 +75,68 @@ def update_memory_md():
 └── memory/YYYY-MM-DD-last-night.md (夜间活动 22:00-07:00)
 
 第四层：原始层（原始记录）
-└── memory/realtime-YYYY-MM-DD.md (每分钟实时同步)
+└── 会话原始记录（harness 自有 session 数据；legacy 可选 mirror: memory/realtime-YYYY-MM-DD.md）
 ```
 
-**Cron时间表**: 07:00 Late Hour Sync → 10/13/16/19/22:00 Micro-Sync → 22:10 Daily Review
-""".format(datetime=datetime)
-    
-    with open(memory_md, 'a', encoding='utf-8') as f:
+**Cron时间表**: 07:00 Late Hour Sync → 10/13/16/19/22:00 Micro-Sync → 22:10 Daily Review → 周日 23:55 Weekly Compound
+""".format(now=datetime.now().strftime("%Y-%m-%d"))
+
+    with open(memory_md, "a", encoding="utf-8") as f:
         f.write(architecture_section)
-    
     log("Updated MEMORY.md with architecture diagram")
 
-def configure_qmd():
-    """Add QMD collections to openclaw.json"""
-    openclaw_json = os.path.expanduser("~/.openclaw/openclaw.json")
-    
-    with open(openclaw_json, 'r', encoding='utf-8') as f:
-        config = json.load(f)
-    
-    # Check if already configured
-    existing_names = [p.get('name') for p in config.get('memory', {}).get('qmd', {}).get('paths', [])]
-    
-    new_paths = [
-        {
-            "path": "./memory/daily_reviews",
-            "name": "memory-daily-reviews",
-            "pattern": "*.md"
-        },
-        {
-            "path": "./memory/weekly_distills",
-            "name": "memory-weekly-distills",
-            "pattern": "*.md"
-        },
-        {
-            "path": "./memory",
-            "name": "memory-late-night",
-            "pattern": "*-last-night.md"
-        }
-    ]
-    
-    added = []
-    for path_config in new_paths:
-        if path_config['name'] not in existing_names:
-            config['memory']['qmd']['paths'].insert(4, path_config)  # Insert after topics
-            added.append(path_config['name'])
-    
-    if added:
-        with open(openclaw_json, 'w', encoding='utf-8') as f:
-            json.dump(config, f, indent=2, ensure_ascii=False)
-        log(f"Added QMD collections: {', '.join(added)}")
-    else:
-        log("QMD collections already configured")
+CORE_JOBS = [
+    ("Late Hour Sync", "0 7 * * *", "memory/YYYY-MM-DD-last-night.md",
+     "把 22:00-07:00 活动按前一晚日期归档"),
+    ("Micro-Sync", "0 10,13,16,19,22 * * *", "memory/YYYY-MM-DD.md（追加）",
+     "每 3 小时追加有意义的白天活动"),
+    ("Daily Review", "10 22 * * *", "memory/daily_reviews/YYYY-MM-DD.md",
+     "蒸馏当日洞察"),
+    ("Weekly Compound", "55 23 * * 0", "memory/weekly_distills/YYYY-Wxx.md",
+     "跨日模式分析"),
+]
 
-def install_crons():
-    """Install required cron jobs (manual step - show instructions)"""
-    log("Cron installation instructions:")
+def print_cron_contract():
+    """Print the portable cron contract; harness-specific installation is separate."""
     print("""
-The following cron jobs need to be added via 'openclaw cron add':
+Core cron contract (portable baseline — see references/cron-reference.md):
 
-1. Late Hour Sync (07:00 daily)
-   Schedule: 0 7 * * *
-   Purpose: Archive night activities (22:00-07:00)
-   Output: memory/YYYY-MM-DD-last-night.md
+  {jobs}
 
-2. Hourly Micro-Sync (10,13,16,19,22:00 daily)
-   Schedule: 0 10,13,16,19,22 * * *
-   Purpose: Extract important activities every 3 hours
-   Output: memory/YYYY-MM-DD.md
+Installation is harness-specific:
+  - OpenClaw: create the jobs with `openclaw cron add` (see references/cron-reference.md).
+  - DSH: create the jobs in the DSH cron engine with an explicit model per job
+    (see references/dsh-adapter.md).
 
-3. Daily Review (22:10 daily)
-   Schedule: 10 22 * * *
-   Purpose: Distill daily insights
-   Output: memory/daily_reviews/YYYY-MM-DD.md
-
-4. Weekly Memory Compound (Sun 23:55)
-   Schedule: 55 23 * * 0
-   Purpose: Cross-day pattern analysis
-   Output: memory/weekly_distills/YYYY-WXX.md
-
-Run 'openclaw cron list' to check existing jobs.
-""")
+Every LLM-backed job MUST explicitly specify a model allowed by the local
+deployment; never rely on a harness default.
+""".format(jobs="\n  ".join(
+        f"{name}: {schedule} -> {output} ({purpose})"
+        for name, schedule, output, purpose in CORE_JOBS
+    )))
 
 def main():
-    log("Initializing Memory Pyramid Architecture...")
-    
-    create_directories()
-    update_memory_md()
-    configure_qmd()
-    install_crons()
-    
-    log("Initialization complete!")
-    log("Next steps:")
-    log("1. Run 'qmd update && qmd embed' to index new collections")
-    log("2. Add cron jobs manually via 'openclaw cron add'")
-    log("3. Read SKILL.md for detailed usage instructions")
+    parser = argparse.ArgumentParser(description="Memory Pyramid baseline initializer (harness-agnostic)")
+    parser.add_argument("--root", default=os.environ.get("MEMORY_PYRAMID_DIR"),
+                        help="Memory root directory (defaults to $MEMORY_PYRAMID_DIR). "
+                             "Required: we refuse to guess a location.")
+    args = parser.parse_args()
+
+    if not args.root:
+        parser.error("no memory root given. Pass --root <dir> or set MEMORY_PYRAMID_DIR. "
+                     "Refusing to guess a default location (creating the baseline in the "
+                     "wrong place is worse than failing loudly).")
+
+    root = os.path.abspath(os.path.expanduser(args.root))
+    log(f"Initializing Memory Pyramid baseline v{VERSION} at {root}")
+
+    create_directories(root)
+    update_memory_md(root)
+    print_cron_contract()
+
+    log("Initialization complete.")
+    log("Next steps: install the four cron jobs in your harness, then verify with")
+    log("  python3 scripts/verify_suite.py && python3 scripts/test_integration.py")
 
 if __name__ == "__main__":
     main()

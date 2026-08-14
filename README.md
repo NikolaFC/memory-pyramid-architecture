@@ -1,24 +1,26 @@
-# Memory Pyramid Architecture for OpenClaw
+# Memory Pyramid Architecture
 
-**Version: 1.1.0**
-**Last updated: 2026-05-07**
+**Version: 1.2.0**
+**Last updated: 2026-08-14**
 
-[![Version](https://img.shields.io/badge/version-1.1.0-blue.svg)](VERSION)
+[![Version](https://img.shields.io/badge/version-1.2.0-blue.svg)](VERSION)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![OpenClaw](https://img.shields.io/badge/OpenClaw-Compatible-blue.svg)](https://openclaw.ai)
+[![DSH](https://img.shields.io/badge/DSH-Adapter-brightgreen.svg)](references/dsh-adapter.md)
 
-> 🏗️ A production-ready, four-layer memory baseline for OpenClaw with night-owl-aware session boundaries.
+> 🏗️ A production-ready, four-layer memory baseline with night-owl-aware session boundaries. Harness-agnostic at its core, with per-harness adapters (OpenClaw native, DeepSeek Harness via the DSH adapter).
 
-This repository documents the **portable baseline**. Real OpenClaw production environments may add a small production overlay: live status files, indexed session transcripts, short-term promotion/dreaming pipelines, KB gardening, and skill/evolver boundaries. Those extensions should be documented as overlays, not as an incompatible “v2 rewrite”.
+This repository documents the **portable baseline**. Real production environments may add a small production overlay: live status files, indexed session transcripts, short-term promotion/dreaming pipelines, KB gardening, and skill/evolver boundaries. Those extensions should be documented as overlays, not as an incompatible “v2 rewrite”.
 
 ## ✨ Features
 
 - 🏗️ **Four-layer design**: Raw → Structured → Knowledge → Navigation
 - 🌙 **Night-owl friendly**: 22:00-07:00 activity belongs to the previous night
 - 🔄 **Cron-driven pipeline**: 4 core schedules, with optional maintenance jobs
-- 📊 **Search integrated**: memory files and session transcripts can be indexed for retrieval
+- 📊 **Search integrated**: memory files and session records can be indexed for retrieval
 - ⚡ **Token efficient**: prefer distilled layers before falling back to raw transcripts
 - 🧩 **Overlay friendly**: add production-only memory jobs without changing the baseline contract
+- 🔌 **Harness adapters**: portable baseline plus per-harness deployment docs
 
 ## 🚀 Quick Start
 
@@ -27,8 +29,8 @@ This repository documents the **portable baseline**. Real OpenClaw production en
 git clone https://github.com/<owner>/memory-pyramid-architecture.git
 cd memory-pyramid-architecture
 
-# Initialize or verify the baseline files
-python3 scripts/init.py
+# Initialize or verify the baseline files (memory root must be explicit)
+python3 scripts/init.py --root <memory-root>
 
 # Full repository verification
 python3 scripts/verify_suite.py
@@ -37,7 +39,9 @@ python3 scripts/sync_drift_check.py
 python3 scripts/test_integration.py
 ```
 
-Then add or verify the OpenClaw cron jobs described in `scripts/config.json` and `references/cron-reference.md`.
+Then install the four cron jobs in your harness:
+- **OpenClaw**: follow `references/cron-reference.md`.
+- **DeepSeek Harness (DSH)**: follow `references/dsh-adapter.md`.
 
 ## 📁 Repository Structure
 
@@ -62,6 +66,7 @@ memory-pyramid-architecture/
 │   ├── architecture-details.md
 │   ├── cron-reference.md
 │   ├── production-overlay.md
+│   ├── dsh-adapter.md         # DeepSeek Harness deployment mapping
 │   ├── kb-gardener-workflow-v0.1.md
 │   ├── topic-routing-policy-v0.1.md
 │   ├── topic-scope-template.md
@@ -89,8 +94,8 @@ Layer 3: Structured logs
 └── memory/YYYY-MM-DD-last-night.md
 
 Layer 4: Raw sources
-├── OpenClaw session transcripts / session index  preferred in current OpenClaw
-└── memory/realtime-YYYY-MM-DD.md                 optional legacy/raw mirror
+├── harness-native session records  preferred raw source (OpenClaw transcripts, DSH session jsonl, ...)
+└── memory/realtime-YYYY-MM-DD.md  optional legacy/raw mirror
 ```
 
 ## ⏰ Core Automation Schedule
@@ -114,7 +119,7 @@ python3 scripts/hygiene_scan.py
 python3 scripts/sync_drift_check.py
 ```
 
-Generic checks:
+Generic checks (OpenClaw deployments):
 
 ```bash
 openclaw cron list
@@ -136,6 +141,7 @@ qmd list
 - **[references/architecture-details.md](references/architecture-details.md)** - Design deep dive
 - **[references/cron-reference.md](references/cron-reference.md)** - Core and optional cron guidance
 - **[references/production-overlay.md](references/production-overlay.md)** - Safe production extensions and privacy boundaries
+- **[references/dsh-adapter.md](references/dsh-adapter.md)** - DeepSeek Harness deployment mapping
 - **[references/troubleshooting.md](references/troubleshooting.md)** - Common issues and fixes
 
 ## 🌟 Why Night-Owl Optimized?
@@ -172,7 +178,7 @@ Contributions welcome:
 
 ## 📄 License
 
-[MIT](LICENSE) - Free for personal and commercial use within the OpenClaw ecosystem.
+[MIT](LICENSE) - Free for personal and commercial use.
 
 ## 🔗 Links
 
